@@ -87,7 +87,7 @@ export default async function Dashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-[var(--foreground)]">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-[var(--foreground)]">Krattorps bigårdar</h1>
         <p className="text-[var(--muted)] mt-1">
           Välkommen till BiManager - din biodlingsassistent
         </p>

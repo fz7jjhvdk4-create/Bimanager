@@ -31,6 +31,7 @@ export type TemperamentLevel = (typeof TEMPERAMENT_LEVELS)[number];
 // Health action types
 export const HEALTH_ACTION_TYPES = [
   "Varroabehandling",
+  "Apiguard",
   "Drönarram utskuren",
   "Annan behandling",
 ] as const;
