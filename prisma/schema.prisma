@@ -1,0 +1,136 @@
+// BiManager - Biodlingshanteringssystem
+// Prisma schema for SQLite
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Bigård (Apiary)
+model Apiary {
+  id          String   @id @default(uuid())
+  namn        String
+  adress      String?
+  latitude    Float?
+  longitude   Float?
+  beskrivning String?
+  skapadDatum DateTime @default(now())
+  uppdateradDatum DateTime @updatedAt
+
+  colonies    Colony[]
+}
+
+// Samhälle (Colony)
+model Colony {
+  id                String   @id @default(uuid())
+  bigardId          String
+  bigard            Apiary   @relation(fields: [bigardId], references: [id], onDelete: Cascade)
+  namn              String
+  platsNummer       Int?
+  drottningRas      String?
+  drottningAr       Int?
+  drottningVingklippt Boolean @default(false)
+  kupaTyp           String?
+  ramTypYngelrum    String?
+  ramTypSkattlador  String?
+  status            String   @default("Aktiv") // Aktiv, Förlorat, Avyttrat, Sammanslagen
+  anteckningar      String?
+  skapadDatum       DateTime @default(now())
+  uppdateradDatum   DateTime @updatedAt
+
+  events            Event[]
+  // Avläggare-relationer
+  skapadFran        Colony?  @relation("AvlaggareRelation", fields: [skapadFranId], references: [id])
+  skapadFranId      String?
+  avlaggare         Colony[] @relation("AvlaggareRelation")
+}
+
+// Händelse (Event)
+model Event {
+  id           String   @id @default(uuid())
+  samhalleId   String
+  samhalle     Colony   @relation(fields: [samhalleId], references: [id], onDelete: Cascade)
+  handelseTyp  String   // Inspektion, Skörd, Invintring, Avläggare, Hälsoåtgärd, Anteckning
+  datum        DateTime
+  beskrivning  String?
+  data         String?  // JSON för typspecifik data
+  skapadDatum  DateTime @default(now())
+}
+
+// Kassabok (Accounting)
+model Accounting {
+  id              String   @id @default(uuid())
+  datum           DateTime
+  handelseTyp     String   // Försäljning, Inköp
+  beskrivning     String
+  beloppExMoms    Float
+  momsSats        Float    @default(0.12) // 12% för honung
+  momsBelopp      Float
+  beloppInklMoms  Float
+  mottagare       String?
+  antalBurkar     Int?
+  prisPerEnhet    Float?
+  fakturaNummer   String?
+  notering        String?
+  skapadDatum     DateTime @default(now())
+
+  faktura         Invoice? @relation(fields: [fakturaId], references: [id])
+  fakturaId       String?
+}
+
+// Kund (Customer)
+model Customer {
+  id                  String   @id @default(uuid())
+  namn                String
+  adress              String?
+  postnummer          String?
+  ort                 String?
+  epost               String?
+  telefon             String?
+  organisationsnummer String?
+  skapadDatum         DateTime @default(now())
+  uppdateradDatum     DateTime @updatedAt
+
+  invoices            Invoice[]
+}
+
+// Faktura (Invoice)
+model Invoice {
+  id              String   @id @default(uuid())
+  fakturaNummer   String   @unique
+  kundId          String
+  kund            Customer @relation(fields: [kundId], references: [id])
+  fakturaDatum    DateTime
+  forfallDatum    DateTime
+  rader           String   // JSON array med produktrader
+  totaltExMoms    Float
+  totaltMoms      Float
+  totaltInklMoms  Float
+  status          String   @default("Utkast") // Utkast, Skickad, Betald
+  pdfUrl          String?
+  skapadDatum     DateTime @default(now())
+  uppdateradDatum DateTime @updatedAt
+
+  transactions    Accounting[]
+}
+
+// Företagsinställningar (Settings)
+model Settings {
+  id                  String   @id @default("default")
+  foretagsnamn        String?
+  organisationsnummer String?
+  adress              String?
+  postnummer          String?
+  ort                 String?
+  telefon             String?
+  epost               String?
+  bankgiro            String?
+  swish               String?
+  momsRegistrerad     Boolean  @default(false)
+  nastaFakturaNummer  Int      @default(1)
+  uppdateradDatum     DateTime @updatedAt
+}

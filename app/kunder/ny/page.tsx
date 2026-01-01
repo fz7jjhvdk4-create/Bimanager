@@ -1,0 +1,157 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Users, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+
+export default function NyKundPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [formData, setFormData] = useState({
+    namn: "",
+    adress: "",
+    postnummer: "",
+    ort: "",
+    epost: "",
+    telefon: "",
+    organisationsnummer: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/customers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        throw new Error("Kunde inte skapa kund");
+      }
+
+      router.push("/kunder");
+    } catch {
+      setError("Ett fel uppstod. Försök igen.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link
+          href="/kunder"
+          className="p-2 rounded-lg hover:bg-amber-100 transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5 text-amber-600" />
+        </Link>
+        <div className="flex items-center gap-3">
+          <Users className="h-8 w-8 text-amber-600" />
+          <div>
+            <h1 className="text-2xl font-bold text-amber-900">Ny kund</h1>
+            <p className="text-amber-600">Lägg till en ny kund i registret</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
+          {error && (
+            <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          <Input
+            label="Namn"
+            name="namn"
+            value={formData.namn}
+            onChange={handleChange}
+            placeholder="Kundens namn eller företagsnamn"
+            required
+          />
+
+          <Input
+            label="Organisationsnummer"
+            name="organisationsnummer"
+            value={formData.organisationsnummer}
+            onChange={handleChange}
+            placeholder="XXXXXX-XXXX"
+          />
+
+          <Input
+            label="Adress"
+            name="adress"
+            value={formData.adress}
+            onChange={handleChange}
+            placeholder="Gatuadress"
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Postnummer"
+              name="postnummer"
+              value={formData.postnummer}
+              onChange={handleChange}
+              placeholder="XXX XX"
+            />
+            <Input
+              label="Ort"
+              name="ort"
+              value={formData.ort}
+              onChange={handleChange}
+              placeholder="Stad"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="E-post"
+              type="email"
+              name="epost"
+              value={formData.epost}
+              onChange={handleChange}
+              placeholder="kund@example.com"
+            />
+            <Input
+              label="Telefon"
+              type="tel"
+              name="telefon"
+              value={formData.telefon}
+              onChange={handleChange}
+              placeholder="070-XXX XX XX"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-4">
+          <Button type="submit" disabled={loading}>
+            {loading ? "Sparar..." : "Spara kund"}
+          </Button>
+          <Link href="/kunder">
+            <Button variant="secondary" type="button">
+              Avbryt
+            </Button>
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}
