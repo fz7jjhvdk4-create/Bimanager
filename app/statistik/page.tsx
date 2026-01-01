@@ -12,6 +12,7 @@ import {
   Crown,
   Activity,
   Download,
+  Package,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 
@@ -43,6 +44,8 @@ interface Statistics {
     netMoms: number;
     incomeByMonth: Record<string, number>;
     expensesByMonth: Record<string, number>;
+    totalJarsSold: number;
+    jarsSoldByMonth: Record<string, number>;
   };
   apiaryStats: {
     id: string;
@@ -185,7 +188,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
     );
   }
 
-  const maxHarvest = Math.max(...Object.values(stats.harvest.byMonth), 1);
+  const maxJarsSold = Math.max(...Object.values(stats.economyStats.jarsSoldByMonth || {}), 1);
   const maxIncome = Math.max(
     ...Object.values(stats.economyStats.incomeByMonth),
     ...Object.values(stats.economyStats.expensesByMonth),
@@ -271,16 +274,16 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Skörd per månad */}
+        {/* Sålda burkar per månad */}
         <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
           <div className="flex items-center gap-2 mb-4">
-            <Scale className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Skörd per månad</h2>
+            <Package className="h-5 w-5 text-amber-600" />
+            <h2 className="font-semibold text-amber-900">Sålda burkar per månad</h2>
           </div>
           <div className="flex items-end gap-1 h-40">
             {MONTHS.map((month) => {
-              const value = stats.harvest.byMonth[month] || 0;
-              const height = maxHarvest > 0 ? (value / maxHarvest) * 100 : 0;
+              const value = stats.economyStats.jarsSoldByMonth?.[month] || 0;
+              const height = maxJarsSold > 0 ? (value / maxJarsSold) * 100 : 0;
               return (
                 <div
                   key={month}
@@ -289,11 +292,11 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                   <div className="w-full flex flex-col items-center justify-end h-32">
                     {value > 0 && (
                       <span className="text-xs text-amber-600 mb-1">
-                        {value.toFixed(0)}
+                        {value}
                       </span>
                     )}
                     <div
-                      className="w-full bg-yellow-400 rounded-t transition-all"
+                      className="w-full bg-amber-400 rounded-t transition-all"
                       style={{ height: `${height}%`, minHeight: value > 0 ? 4 : 0 }}
                     />
                   </div>
@@ -302,6 +305,9 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
               );
             })}
           </div>
+          <p className="text-center text-sm text-amber-600 mt-2">
+            Totalt: {stats.economyStats.totalJarsSold || 0} burkar
+          </p>
         </div>
 
         {/* Ekonomi per månad */}
@@ -355,59 +361,6 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
               <div className="w-3 h-3 bg-red-400 rounded" />
               <span className="text-xs text-amber-600">Utgifter</span>
             </div>
-          </div>
-        </div>
-
-        {/* Samhällsstatus */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
-          <div className="flex items-center gap-2 mb-4">
-            <Hexagon className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Samhällsstatus</h2>
-          </div>
-          <div className="space-y-3">
-            {[
-              {
-                label: "Aktiva",
-                value: stats.colonyStats.active,
-                color: "bg-green-500",
-              },
-              {
-                label: "Förlorade",
-                value: stats.colonyStats.lost,
-                color: "bg-red-500",
-              },
-              {
-                label: "Avyttrade",
-                value: stats.colonyStats.sold,
-                color: "bg-blue-500",
-              },
-              {
-                label: "Sammanslagna",
-                value: stats.colonyStats.merged,
-                color: "bg-purple-500",
-              },
-            ].map((item) => {
-              const percentage =
-                stats.colonyStats.total > 0
-                  ? (item.value / stats.colonyStats.total) * 100
-                  : 0;
-              return (
-                <div key={item.label}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-amber-700">{item.label}</span>
-                    <span className="text-amber-900 font-medium">
-                      {item.value} ({percentage.toFixed(0)}%)
-                    </span>
-                  </div>
-                  <div className="h-2 bg-amber-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${item.color} transition-all`}
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
 
@@ -619,6 +572,13 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pt-4">
+        <p className="text-xs text-[var(--muted)]">
+          © Utvecklad av Claes Hansen
+        </p>
       </div>
     </div>
   );

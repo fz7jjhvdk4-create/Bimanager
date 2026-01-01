@@ -135,8 +135,10 @@ export async function GET(request: Request) {
     let totalExpenses = 0;
     let totalIncomeMoms = 0;
     let totalExpensesMoms = 0;
+    let totalJarsSold = 0;
     const incomeByMonth: Record<string, number> = {};
     const expensesByMonth: Record<string, number> = {};
+    const jarsSoldByMonth: Record<string, number> = {};
 
     transactions.forEach((t) => {
       const month = new Date(t.datum).toLocaleDateString("sv-SE", {
@@ -147,6 +149,10 @@ export async function GET(request: Request) {
         totalIncome += t.beloppInklMoms;
         totalIncomeMoms += t.momsBelopp;
         incomeByMonth[month] = (incomeByMonth[month] || 0) + t.beloppInklMoms;
+        if (t.antalBurkar) {
+          totalJarsSold += t.antalBurkar;
+          jarsSoldByMonth[month] = (jarsSoldByMonth[month] || 0) + t.antalBurkar;
+        }
       } else {
         totalExpenses += t.beloppInklMoms;
         totalExpensesMoms += t.momsBelopp;
@@ -163,6 +169,8 @@ export async function GET(request: Request) {
       netMoms: totalIncomeMoms - totalExpensesMoms,
       incomeByMonth,
       expensesByMonth,
+      totalJarsSold,
+      jarsSoldByMonth,
     };
 
     // === BIGÅRDSSTATISTIK ===
