@@ -22,6 +22,7 @@ model Apiary {
   uppdateradDatum DateTime @updatedAt
 
   colonies    Colony[]
+  reminders   Reminder[]
 }
 
 // Samhälle (Colony)
@@ -43,6 +44,7 @@ model Colony {
   uppdateradDatum   DateTime @updatedAt
 
   events            Event[]
+  reminders         Reminder[]
   // Avläggare-relationer
   skapadFran        Colony?  @relation("AvlaggareRelation", fields: [skapadFranId], references: [id])
   skapadFranId      String?
@@ -133,4 +135,23 @@ model Settings {
   momsRegistrerad     Boolean  @default(false)
   nastaFakturaNummer  Int      @default(1)
   uppdateradDatum     DateTime @updatedAt
+}
+
+// Påminnelse (Reminder)
+model Reminder {
+  id              String   @id @default(uuid())
+  titel           String
+  beskrivning     String?
+  datum           DateTime
+  paminnaFor      Int      @default(1) // Dagar innan
+  kategori        String   // Varroabehandling, Inspektion, Invintring, Utfodring, Övrigt
+  samhalleId      String?
+  samhalle        Colony?  @relation(fields: [samhalleId], references: [id], onDelete: SetNull)
+  bigardId        String?
+  bigard          Apiary?  @relation(fields: [bigardId], references: [id], onDelete: SetNull)
+  utford          Boolean  @default(false)
+  utfordDatum     DateTime?
+  upprepning      String?  // Ingen, Varje vecka, Varje månad, Varje år
+  skapadDatum     DateTime @default(now())
+  uppdateradDatum DateTime @updatedAt
 }

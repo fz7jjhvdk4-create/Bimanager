@@ -24,16 +24,16 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed focus:ring-offset-[var(--background)]";
 
     const variants = {
       primary:
-        "bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500",
+        "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] focus:ring-[var(--accent)]",
       secondary:
-        "bg-amber-100 text-amber-800 hover:bg-amber-200 focus:ring-amber-500",
+        "bg-[var(--accent)]/20 text-[var(--foreground)] hover:bg-[var(--accent)]/30 focus:ring-[var(--accent)]",
       outline:
-        "border border-amber-300 text-amber-700 hover:bg-amber-50 focus:ring-amber-500",
-      ghost: "text-amber-700 hover:bg-amber-100 focus:ring-amber-500",
+        "border border-[var(--card-border)] text-[var(--foreground)] hover:bg-[var(--accent)]/10 focus:ring-[var(--accent)]",
+      ghost: "text-[var(--foreground)] hover:bg-[var(--accent)]/10 focus:ring-[var(--accent)]",
       danger: "bg-red-500 text-white hover:bg-red-600 focus:ring-red-500",
     };
 

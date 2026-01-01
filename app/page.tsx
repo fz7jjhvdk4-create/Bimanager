@@ -87,8 +87,8 @@ export default async function Dashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-amber-900">Dashboard</h1>
-        <p className="text-amber-700 mt-1">
+        <h1 className="text-3xl font-bold text-[var(--foreground)]">Dashboard</h1>
+        <p className="text-[var(--muted)] mt-1">
           Välkommen till BiManager - din biodlingsassistent
         </p>
       </div>
@@ -99,7 +99,7 @@ export default async function Dashboard() {
           <Link
             key={stat.name}
             href={stat.href}
-            className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100 hover:shadow-md transition-shadow"
+            className="relative overflow-hidden rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)] hover:shadow-md transition-shadow"
           >
             <div className="flex items-center gap-4">
               <div
@@ -108,10 +108,10 @@ export default async function Dashboard() {
                 <stat.icon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium text-amber-600">
+                <p className="text-sm font-medium text-[var(--muted)]">
                   {stat.name}
                 </p>
-                <p className="text-2xl font-bold text-amber-900">
+                <p className="text-2xl font-bold text-[var(--foreground)]">
                   {stat.value}
                 </p>
               </div>
@@ -121,17 +121,17 @@ export default async function Dashboard() {
       </div>
 
       {/* Recent Events */}
-      <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+      <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
         <div className="flex items-center gap-3 mb-4">
-          <Calendar className="h-5 w-5 text-amber-600" />
-          <h2 className="text-lg font-semibold text-amber-900">
+          <Calendar className="h-5 w-5 text-[var(--accent)]" />
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">
             Senaste händelser
           </h2>
         </div>
         {recentEvents.length === 0 ? (
-          <p className="text-amber-600 text-center py-8">
+          <p className="text-[var(--muted)] text-center py-8">
             Inga händelser registrerade ännu.{" "}
-            <Link href="/samhallen" className="text-amber-700 underline">
+            <Link href="/samhallen" className="text-[var(--accent)] underline">
               Lägg till ett samhälle
             </Link>{" "}
             för att komma igång.
@@ -141,17 +141,17 @@ export default async function Dashboard() {
             {recentEvents.map((event) => (
               <div
                 key={event.id}
-                className="flex items-center justify-between border-b border-amber-100 pb-3 last:border-0"
+                className="flex items-center justify-between border-b border-[var(--card-border)] pb-3 last:border-0"
               >
                 <div>
-                  <p className="font-medium text-amber-900">
+                  <p className="font-medium text-[var(--foreground)]">
                     {event.handelseTyp}
                   </p>
-                  <p className="text-sm text-amber-600">
+                  <p className="text-sm text-[var(--muted)]">
                     {event.samhalle.namn} - {event.samhalle.bigard.namn}
                   </p>
                 </div>
-                <p className="text-sm text-amber-500">
+                <p className="text-sm text-[var(--muted)]">
                   {new Date(event.datum).toLocaleDateString("sv-SE")}
                 </p>
               </div>

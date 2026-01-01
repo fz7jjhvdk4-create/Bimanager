@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
+import Header from "@/components/layout/Header";
+import { ThemeProvider } from "@/lib/ThemeContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,12 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sv">
-      <body className={`${inter.variable} font-sans antialiased bg-stone-50`}>
-        <Sidebar />
-        <main className="lg:pl-64 min-h-screen">
-          <div className="p-4 lg:p-8 pt-20 lg:pt-8">{children}</div>
-        </main>
+    <html lang="sv" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased bg-[var(--background)] text-[var(--foreground)]`}>
+        <ThemeProvider>
+          <Sidebar />
+          <Header />
+          <main className="lg:pl-64 min-h-screen">
+            <div className="p-4 lg:p-8 pt-20 lg:pt-20">{children}</div>
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );

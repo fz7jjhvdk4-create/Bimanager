@@ -55,14 +55,14 @@ export default function Modal({
         onClick={onClose}
       />
       <div
-        className={`relative bg-white rounded-xl shadow-xl w-full ${sizes[size]} max-h-[90vh] overflow-y-auto`}
+        className={`relative bg-[var(--card-bg)] rounded-xl shadow-xl w-full ${sizes[size]} max-h-[90vh] overflow-y-auto`}
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-amber-100">
-            <h2 className="text-lg font-semibold text-amber-900">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--card-border)]">
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg text-amber-500 hover:bg-amber-100"
+              className="p-1 rounded-lg text-[var(--muted)] hover:bg-[var(--accent)]/10"
             >
               <X className="h-5 w-5" />
             </button>

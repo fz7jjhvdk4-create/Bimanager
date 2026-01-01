@@ -1,26 +1,53 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafaf9;
+  --foreground: #1c1917;
+  --card-bg: #ffffff;
+  --card-border: #fef3c7;
+  --sidebar-from: #fffbeb;
+  --sidebar-to: #fef3c7;
+  --sidebar-border: #fde68a;
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --muted: #78716c;
+}
+
+.dark {
+  --background: #1c1917;
+  --foreground: #fafaf9;
+  --card-bg: #292524;
+  --card-border: #44403c;
+  --sidebar-from: #292524;
+  --sidebar-to: #1c1917;
+  --sidebar-border: #44403c;
+  --accent: #fbbf24;
+  --accent-hover: #f59e0b;
+  --muted: #a8a29e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-sidebar-from: var(--sidebar-from);
+  --color-sidebar-to: var(--sidebar-to);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Smooth transitions for dark mode */
+html {
+  transition: background-color 0.2s ease, color 0.2s ease;
 }

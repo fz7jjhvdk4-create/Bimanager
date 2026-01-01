@@ -124,3 +124,23 @@ export const QUEEN_RACES = [
   "Nordbi",
   "Kaukasiska",
 ] as const;
+
+// Reminder categories
+export const REMINDER_CATEGORIES = [
+  "Varroabehandling",
+  "Inspektion",
+  "Invintring",
+  "Utfodring",
+  "Skörd",
+  "Övrigt",
+] as const;
+export type ReminderCategory = (typeof REMINDER_CATEGORIES)[number];
+
+// Reminder repetition
+export const REMINDER_REPETITIONS = [
+  "Ingen",
+  "Varje vecka",
+  "Varje månad",
+  "Varje år",
+] as const;
+export type ReminderRepetition = (typeof REMINDER_REPETITIONS)[number];
