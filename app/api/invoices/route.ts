@@ -140,13 +140,28 @@ export async function POST(request: Request) {
 
     const totaltInklMoms = totaltExMoms + totaltMoms;
 
-    // Hämta nästa fakturanummer
-    const settings = await prisma.settings.findFirst();
-    const nastaFakturaNummer = settings?.nastaFakturaNummer || 1;
-
-    // Använd prefix K för kvitto, F för faktura
+    // Generera fakturanummer med årtal: F26001, K26001 etc.
+    const currentYear = new Date().getFullYear().toString().slice(-2); // "26" för 2026
     const prefix = typ === "kvitto" ? "K" : "F";
-    const fakturaNummer = `${prefix}${nastaFakturaNummer.toString().padStart(4, "0")}`;
+
+    // Hitta senaste numret för detta år och typ
+    const lastInvoice = await prisma.invoice.findFirst({
+      where: {
+        fakturaNummer: {
+          startsWith: `${prefix}${currentYear}`,
+        },
+      },
+      orderBy: { fakturaNummer: "desc" },
+    });
+
+    let nextNumber = 1;
+    if (lastInvoice) {
+      // Extrahera löpnumret från t.ex. "F26005" -> 5
+      const lastNumber = parseInt(lastInvoice.fakturaNummer.slice(3));
+      nextNumber = lastNumber + 1;
+    }
+
+    const fakturaNummer = `${prefix}${currentYear}${nextNumber.toString().padStart(3, "0")}`;
 
     // Kvitton sätts direkt som "Betald" (kontantköp)
     const invoiceStatus = typ === "kvitto" ? "Betald" : status;
@@ -169,21 +184,6 @@ export async function POST(request: Request) {
         kund: true,
       },
     });
-
-    // Uppdatera nästa fakturanummer
-    if (settings) {
-      await prisma.settings.update({
-        where: { id: settings.id },
-        data: { nastaFakturaNummer: nastaFakturaNummer + 1 },
-      });
-    } else {
-      await prisma.settings.create({
-        data: {
-          id: "default",
-          nastaFakturaNummer: 2,
-        },
-      });
-    }
 
     // Kvitton läggs automatiskt in i kassaboken som försäljning
     if (typ === "kvitto") {

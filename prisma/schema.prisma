@@ -77,6 +77,7 @@ model Accounting {
   antalBurkar     Int?
   prisPerEnhet    Float?
   fakturaNummer   String?
+  kvittoNummer    String?  // För kontanta betalningar med kvitto
   notering        String?
   skapadDatum     DateTime @default(now())
 
@@ -135,6 +136,7 @@ model Settings {
   swish               String?
   momsRegistrerad     Boolean  @default(false)
   nastaFakturaNummer  Int      @default(1)
+  nastaKvittoNummer   Int      @default(1)
   uppdateradDatum     DateTime @updatedAt
 }
 

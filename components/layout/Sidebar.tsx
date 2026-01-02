@@ -7,7 +7,7 @@ import {
   MapPin,
   Hexagon,
   BookOpen,
-  FileText,
+  CreditCard,
   Users,
   Settings,
   Menu,
@@ -27,7 +27,7 @@ const navigation = [
   { name: "Statistik", href: "/statistik", icon: BarChart3 },
   { name: "Påminnelser", href: "/paminnelser", icon: Bell },
   { name: "Kassabok", href: "/kassabok", icon: BookOpen },
-  { name: "Fakturering", href: "/fakturering", icon: FileText },
+  { name: "Betalning", href: "/betalning", icon: CreditCard },
   { name: "Kunder", href: "/kunder", icon: Users },
   { name: "Inställningar", href: "/installningar", icon: Settings },
 ];
