@@ -194,6 +194,30 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
     1
   );
 
+  // Beräkna ackumulerade värden för burkar
+  const cumulativeJars = MONTHS.reduce((acc, month, index) => {
+    const value = stats.economyStats.jarsSoldByMonth?.[month] || 0;
+    const prev = index > 0 ? acc[MONTHS[index - 1]] : 0;
+    acc[month] = prev + value;
+    return acc;
+  }, {} as Record<string, number>);
+  const maxCumulativeJars = Math.max(...Object.values(cumulativeJars), 1);
+
+  // Beräkna ackumulerat resultat (intäkter - utgifter)
+  const cumulativeProfit = MONTHS.reduce((acc, month, index) => {
+    const income = stats.economyStats.incomeByMonth[month] || 0;
+    const expenses = stats.economyStats.expensesByMonth[month] || 0;
+    const monthProfit = income - expenses;
+    const prev = index > 0 ? acc[MONTHS[index - 1]] : 0;
+    acc[month] = prev + monthProfit;
+    return acc;
+  }, {} as Record<string, number>);
+  const maxAbsProfit = Math.max(
+    Math.abs(Math.min(...Object.values(cumulativeProfit))),
+    Math.abs(Math.max(...Object.values(cumulativeProfit))),
+    1
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -279,7 +303,37 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
             <Package className="h-5 w-5 text-amber-500" />
             <h2 className="font-semibold text-[var(--foreground)]">Sålda burkar per månad</h2>
           </div>
-          <div className="flex items-end gap-1 h-40">
+          <div className="relative flex items-end gap-1 h-40">
+            {/* Ackumulerad kurva */}
+            <svg className="absolute inset-0 w-full h-32 pointer-events-none" preserveAspectRatio="none">
+              <polyline
+                fill="none"
+                stroke="#dc2626"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={MONTHS.map((month, index) => {
+                  const cumValue = cumulativeJars[month] || 0;
+                  const x = ((index + 0.5) / 12) * 100;
+                  const y = maxCumulativeJars > 0 ? 100 - (cumValue / maxCumulativeJars) * 100 : 100;
+                  return `${x}%,${y}%`;
+                }).join(" ")}
+              />
+              {MONTHS.map((month, index) => {
+                const cumValue = cumulativeJars[month] || 0;
+                const x = ((index + 0.5) / 12) * 100;
+                const y = maxCumulativeJars > 0 ? 100 - (cumValue / maxCumulativeJars) * 100 : 100;
+                return (
+                  <circle
+                    key={month}
+                    cx={`${x}%`}
+                    cy={`${y}%`}
+                    r="3"
+                    fill="#dc2626"
+                  />
+                );
+              })}
+            </svg>
             {MONTHS.map((month) => {
               const value = stats.economyStats.jarsSoldByMonth?.[month] || 0;
               const height = maxJarsSold > 0 ? (value / maxJarsSold) * 100 : 0;
@@ -304,9 +358,16 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
               );
             })}
           </div>
-          <p className="text-center text-sm text-[var(--foreground)] mt-2">
-            Totalt: {stats.economyStats.totalJarsSold || 0} burkar
-          </p>
+          <div className="flex justify-center gap-4 mt-2">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-amber-500 rounded" />
+              <span className="text-xs text-[var(--foreground)]">Per månad</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-red-600 rounded-full" />
+              <span className="text-xs text-[var(--foreground)]">Ackumulerat ({stats.economyStats.totalJarsSold || 0} st)</span>
+            </div>
+          </div>
         </div>
 
         {/* Ekonomi per månad */}
@@ -315,7 +376,48 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
             <TrendingUp className="h-5 w-5 text-amber-500" />
             <h2 className="font-semibold text-[var(--foreground)]">Ekonomi per månad</h2>
           </div>
-          <div className="flex items-end gap-1 h-40">
+          <div className="relative flex items-end gap-1 h-40">
+            {/* Ackumulerad resultatkurva */}
+            <svg className="absolute inset-0 w-full h-32 pointer-events-none z-10" preserveAspectRatio="none">
+              <polyline
+                fill="none"
+                stroke="#7c3aed"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={MONTHS.map((month, index) => {
+                  const cumValue = cumulativeProfit[month] || 0;
+                  const x = ((index + 0.5) / 12) * 100;
+                  // Centrera vid 50% för 0-värde, upp/ner beroende på plus/minus
+                  const y = 50 - (cumValue / maxAbsProfit) * 50;
+                  return `${x}%,${y}%`;
+                }).join(" ")}
+              />
+              {MONTHS.map((month, index) => {
+                const cumValue = cumulativeProfit[month] || 0;
+                const x = ((index + 0.5) / 12) * 100;
+                const y = 50 - (cumValue / maxAbsProfit) * 50;
+                return (
+                  <circle
+                    key={month}
+                    cx={`${x}%`}
+                    cy={`${y}%`}
+                    r="3"
+                    fill="#7c3aed"
+                  />
+                );
+              })}
+              {/* Nollinje */}
+              <line
+                x1="0"
+                y1="50%"
+                x2="100%"
+                y2="50%"
+                stroke="#9ca3af"
+                strokeWidth="1"
+                strokeDasharray="4 2"
+              />
+            </svg>
             {MONTHS.map((month) => {
               const income = stats.economyStats.incomeByMonth[month] || 0;
               const expenses = stats.economyStats.expensesByMonth[month] || 0;
@@ -351,7 +453,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
               );
             })}
           </div>
-          <div className="flex justify-center gap-4 mt-2">
+          <div className="flex justify-center gap-4 mt-2 flex-wrap">
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 bg-green-500 rounded" />
               <span className="text-xs text-[var(--foreground)]">Intäkter</span>
@@ -359,6 +461,10 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 bg-red-500 rounded" />
               <span className="text-xs text-[var(--foreground)]">Utgifter</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-purple-600 rounded-full" />
+              <span className="text-xs text-[var(--foreground)]">Ack. resultat ({stats.economyStats.profit.toLocaleString("sv-SE")} kr)</span>
             </div>
           </div>
         </div>
