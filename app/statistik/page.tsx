@@ -9,7 +9,6 @@ import {
   MapPin,
   Scale,
   Calendar,
-  Crown,
   Activity,
   Download,
   Package,
@@ -64,18 +63,18 @@ interface Statistics {
 }
 
 const MONTHS = [
-  "jan",
-  "feb",
-  "mar",
-  "apr",
+  "jan.",
+  "feb.",
+  "mar.",
+  "apr.",
   "maj",
-  "jun",
-  "jul",
-  "aug",
-  "sep",
-  "okt",
-  "nov",
-  "dec",
+  "jun.",
+  "jul.",
+  "aug.",
+  "sep.",
+  "okt.",
+  "nov.",
+  "dec.",
 ];
 
 export default function StatistikPage() {
@@ -200,19 +199,19 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart3 className="h-8 w-8 text-amber-600" />
+          <BarChart3 className="h-8 w-8 text-amber-500" />
           <div>
-            <h1 className="text-2xl font-bold text-amber-900">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Statistik & Rapporter
             </h1>
-            <p className="text-amber-600">Översikt över din biodling</p>
+            <p className="text-[var(--muted)]">Översikt över din biodling</p>
           </div>
         </div>
         <div className="flex gap-2 items-center">
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="rounded-lg border border-amber-200 bg-white px-3 py-2 text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="rounded-lg border border-[var(--input-border)] bg-[var(--card-bg)] px-3 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -229,56 +228,56 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
 
       {/* Sammanfattningskort */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <Hexagon className="h-5 w-5 text-amber-600" />
-            <span className="text-sm text-amber-600">Aktiva samhällen</span>
+            <Hexagon className="h-5 w-5 text-amber-500" />
+            <span className="text-sm text-[var(--muted)]">Aktiva samhällen</span>
           </div>
-          <p className="text-3xl font-bold text-amber-900">
+          <p className="text-3xl font-bold text-[var(--foreground)]">
             {stats.colonyStats.active}
           </p>
-          <p className="text-xs text-amber-500">
+          <p className="text-xs text-[var(--muted)]">
             av {stats.colonyStats.total} totalt
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <Scale className="h-5 w-5 text-yellow-600" />
-            <span className="text-sm text-amber-600">Total skörd</span>
+            <Scale className="h-5 w-5 text-yellow-500" />
+            <span className="text-sm text-[var(--muted)]">Total skörd</span>
           </div>
-          <p className="text-3xl font-bold text-yellow-700">
+          <p className="text-3xl font-bold text-yellow-500">
             {stats.harvest.total.toFixed(1)}
           </p>
-          <p className="text-xs text-amber-500">kg honung</p>
+          <p className="text-xs text-[var(--muted)]">kg honung</p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            <span className="text-sm text-amber-600">Intäkter</span>
+            <TrendingUp className="h-5 w-5 text-green-500" />
+            <span className="text-sm text-[var(--muted)]">Intäkter</span>
           </div>
-          <p className="text-3xl font-bold text-green-700">
+          <p className="text-3xl font-bold text-green-500">
             {(stats.economyStats.income / 1000).toFixed(1)}k
           </p>
-          <p className="text-xs text-amber-500">kronor</p>
+          <p className="text-xs text-[var(--muted)]">kronor</p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <Activity className="h-5 w-5 text-blue-600" />
-            <span className="text-sm text-amber-600">Händelser</span>
+            <Activity className="h-5 w-5 text-blue-500" />
+            <span className="text-sm text-[var(--muted)]">Händelser</span>
           </div>
-          <p className="text-3xl font-bold text-blue-700">
+          <p className="text-3xl font-bold text-blue-500">
             {stats.eventStats.total}
           </p>
-          <p className="text-xs text-amber-500">registrerade</p>
+          <p className="text-xs text-[var(--muted)]">registrerade</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sålda burkar per månad */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <Package className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Sålda burkar per månad</h2>
+            <Package className="h-5 w-5 text-amber-500" />
+            <h2 className="font-semibold text-[var(--foreground)]">Sålda burkar per månad</h2>
           </div>
           <div className="flex items-end gap-1 h-40">
             {MONTHS.map((month) => {
@@ -291,30 +290,30 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                 >
                   <div className="w-full flex flex-col items-center justify-end h-32">
                     {value > 0 && (
-                      <span className="text-xs text-amber-600 mb-1">
+                      <span className="text-xs text-[var(--foreground)] mb-1">
                         {value}
                       </span>
                     )}
                     <div
-                      className="w-full bg-amber-400 rounded-t transition-all"
+                      className="w-full bg-amber-500 rounded-t transition-all"
                       style={{ height: `${height}%`, minHeight: value > 0 ? 4 : 0 }}
                     />
                   </div>
-                  <span className="text-xs text-amber-500">{month}</span>
+                  <span className="text-xs text-[var(--muted)]">{month}</span>
                 </div>
               );
             })}
           </div>
-          <p className="text-center text-sm text-amber-600 mt-2">
+          <p className="text-center text-sm text-[var(--foreground)] mt-2">
             Totalt: {stats.economyStats.totalJarsSold || 0} burkar
           </p>
         </div>
 
         {/* Ekonomi per månad */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Ekonomi per månad</h2>
+            <TrendingUp className="h-5 w-5 text-amber-500" />
+            <h2 className="font-semibold text-[var(--foreground)]">Ekonomi per månad</h2>
           </div>
           <div className="flex items-end gap-1 h-40">
             {MONTHS.map((month) => {
@@ -331,7 +330,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                 >
                   <div className="w-full flex items-end justify-center gap-0.5 h-32">
                     <div
-                      className="w-2 bg-green-400 rounded-t transition-all"
+                      className="w-2 bg-green-500 rounded-t transition-all"
                       style={{
                         height: `${incomeHeight}%`,
                         minHeight: income > 0 ? 4 : 0,
@@ -339,7 +338,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                       title={`Intäkt: ${income.toFixed(0)} kr`}
                     />
                     <div
-                      className="w-2 bg-red-400 rounded-t transition-all"
+                      className="w-2 bg-red-500 rounded-t transition-all"
                       style={{
                         height: `${expensesHeight}%`,
                         minHeight: expenses > 0 ? 4 : 0,
@@ -347,28 +346,28 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                       title={`Utgift: ${expenses.toFixed(0)} kr`}
                     />
                   </div>
-                  <span className="text-xs text-amber-500">{month}</span>
+                  <span className="text-xs text-[var(--muted)]">{month}</span>
                 </div>
               );
             })}
           </div>
           <div className="flex justify-center gap-4 mt-2">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-green-400 rounded" />
-              <span className="text-xs text-amber-600">Intäkter</span>
+              <div className="w-3 h-3 bg-green-500 rounded" />
+              <span className="text-xs text-[var(--foreground)]">Intäkter</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-red-400 rounded" />
-              <span className="text-xs text-amber-600">Utgifter</span>
+              <div className="w-3 h-3 bg-red-500 rounded" />
+              <span className="text-xs text-[var(--foreground)]">Utgifter</span>
             </div>
           </div>
         </div>
 
         {/* Händelser per typ */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Händelser per typ</h2>
+            <Calendar className="h-5 w-5 text-amber-500" />
+            <h2 className="font-semibold text-[var(--foreground)]">Händelser per typ</h2>
           </div>
           <div className="space-y-3">
             {Object.entries(stats.eventStats.byType)
@@ -389,12 +388,12 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                 return (
                   <div key={type}>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-amber-700">{type}</span>
-                      <span className="text-amber-900 font-medium">
+                      <span className="text-[var(--foreground)]">{type}</span>
+                      <span className="text-[var(--foreground)] font-medium">
                         {count} ({percentage.toFixed(0)}%)
                       </span>
                     </div>
-                    <div className="h-2 bg-amber-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-[var(--input-bg)] rounded-full overflow-hidden">
                       <div
                         className={`h-full ${colors[type] || "bg-amber-500"} transition-all`}
                         style={{ width: `${percentage}%` }}
@@ -404,7 +403,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                 );
               })}
             {Object.keys(stats.eventStats.byType).length === 0 && (
-              <p className="text-amber-500 text-sm text-center py-4">
+              <p className="text-[var(--muted)] text-sm text-center py-4">
                 Inga händelser registrerade
               </p>
             )}
@@ -412,10 +411,10 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
         </div>
 
         {/* Skörd per bigård */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Skörd per bigård</h2>
+            <MapPin className="h-5 w-5 text-amber-500" />
+            <h2 className="font-semibold text-[var(--foreground)]">Skörd per bigård</h2>
           </div>
           {stats.harvest.byApiary.length > 0 ? (
             <div className="space-y-3">
@@ -430,12 +429,12 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                   return (
                     <div key={apiary.name}>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-amber-700">{apiary.name}</span>
-                        <span className="text-amber-900 font-medium">
+                        <span className="text-[var(--foreground)]">{apiary.name}</span>
+                        <span className="text-[var(--foreground)] font-medium">
                           {apiary.amount.toFixed(1)} kg
                         </span>
                       </div>
-                      <div className="h-2 bg-amber-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-[var(--input-bg)] rounded-full overflow-hidden">
                         <div
                           className="h-full bg-yellow-500 transition-all"
                           style={{ width: `${percentage}%` }}
@@ -446,55 +445,19 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                 })}
             </div>
           ) : (
-            <p className="text-amber-500 text-sm text-center py-4">
+            <p className="text-[var(--muted)] text-sm text-center py-4">
               Ingen skördedata
             </p>
           )}
         </div>
 
-        {/* Drottningsstatistik */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
-          <div className="flex items-center gap-2 mb-4">
-            <Crown className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Drottningar</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="bg-amber-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-amber-900">
-                {stats.queenStats.total}
-              </p>
-              <p className="text-xs text-amber-600">Totalt</p>
-            </div>
-            <div className="bg-amber-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-amber-900">
-                {stats.queenStats.wingClipped}
-              </p>
-              <p className="text-xs text-amber-600">Vingklippta</p>
-            </div>
-          </div>
-          {Object.keys(stats.queenStats.byRace).length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-amber-700 mb-2">Per ras:</p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(stats.queenStats.byRace).map(([race, count]) => (
-                  <span
-                    key={race}
-                    className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs"
-                  >
-                    {race}: {count}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Historisk skörd */}
-      <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100">
+      <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
         <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="h-5 w-5 text-amber-600" />
-          <h2 className="font-semibold text-amber-900">
+          <BarChart3 className="h-5 w-5 text-amber-500" />
+          <h2 className="font-semibold text-[var(--foreground)]">
             Historisk skörd (senaste 5 åren)
           </h2>
         </div>
@@ -509,13 +472,13 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
               <div key={year} className="flex-1 flex flex-col items-center gap-2">
                 <div className="w-full flex flex-col items-center justify-end h-36">
                   {data.harvest > 0 && (
-                    <span className="text-sm font-medium text-amber-900 mb-1">
+                    <span className="text-sm font-medium text-[var(--foreground)] mb-1">
                       {data.harvest.toFixed(0)} kg
                     </span>
                   )}
                   <div
                     className={`w-full rounded-t transition-all ${
-                      year === selectedYear ? "bg-amber-500" : "bg-amber-300"
+                      year === selectedYear ? "bg-amber-500" : "bg-amber-500/50"
                     }`}
                     style={{ height: `${height}%`, minHeight: data.harvest > 0 ? 8 : 0 }}
                   />
@@ -523,8 +486,8 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
                 <span
                   className={`text-sm ${
                     year === selectedYear
-                      ? "font-bold text-amber-900"
-                      : "text-amber-600"
+                      ? "font-bold text-[var(--foreground)]"
+                      : "text-[var(--muted)]"
                   }`}
                 >
                   {year}
