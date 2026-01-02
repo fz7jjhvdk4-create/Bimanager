@@ -11,6 +11,8 @@
   --accent: #f59e0b;
   --accent-hover: #d97706;
   --muted: #78716c;
+  --input-bg: #fffbeb;
+  --input-border: #fde68a;
 }
 
 .dark {
@@ -24,6 +26,8 @@
   --accent: #fbbf24;
   --accent-hover: #f59e0b;
   --muted: #a8a29e;
+  --input-bg: #3d3836;
+  --input-border: #57534e;
 }
 
 @theme inline {
@@ -37,6 +41,8 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-muted: var(--muted);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }

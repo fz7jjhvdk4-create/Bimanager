@@ -112,6 +112,7 @@ model Invoice {
   totaltExMoms    Float
   totaltMoms      Float
   totaltInklMoms  Float
+  typ             String   @default("faktura") // faktura, kvitto
   status          String   @default("Utkast") // Utkast, Skickad, Betald
   pdfUrl          String?
   skapadDatum     DateTime @default(now())

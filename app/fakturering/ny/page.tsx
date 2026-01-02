@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { FileText, ArrowLeft, Plus, Trash2, Mail } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -11,6 +11,7 @@ import Select from "@/components/ui/Select";
 interface Customer {
   id: string;
   namn: string;
+  epost: string | null;
 }
 
 interface InvoiceLine {
@@ -44,6 +45,9 @@ export default function NyFakturaPage() {
       momsSats: 0.12,
     },
   ]);
+
+  const [betalningsTyp, setBetalningsTyp] = useState<"faktura" | "kvitto">("faktura");
+  const [skickaKvittoMail, setSkickaKvittoMail] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
@@ -123,6 +127,8 @@ export default function NyFakturaPage() {
         body: JSON.stringify({
           ...formData,
           rader,
+          typ: betalningsTyp,
+          skickaKvittoMail: betalningsTyp === "kvitto" && skickaKvittoMail,
         }),
       });
 
@@ -177,8 +183,8 @@ export default function NyFakturaPage() {
         )}
 
         {/* Customer & Dates */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
-          <h2 className="font-semibold text-amber-900">Kundinformation</h2>
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
+          <h2 className="font-semibold text-[var(--foreground)]">Kundinformation</h2>
 
           <Select
             label="Kund"
@@ -221,9 +227,9 @@ export default function NyFakturaPage() {
         </div>
 
         {/* Invoice Lines */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-amber-900">Fakturarader</h2>
+            <h2 className="font-semibold text-[var(--foreground)]">Fakturarader</h2>
             <Button type="button" variant="secondary" onClick={addLine}>
               <Plus className="h-4 w-4 mr-1" />
               Lägg till rad
@@ -234,10 +240,10 @@ export default function NyFakturaPage() {
             {rader.map((rad, index) => (
               <div
                 key={index}
-                className="grid grid-cols-12 gap-2 items-end bg-amber-50 p-3 rounded-lg"
+                className="grid grid-cols-12 gap-2 items-end bg-[var(--input-bg)] p-3 rounded-lg"
               >
                 <div className="col-span-12 md:col-span-4">
-                  <label className="block text-xs font-medium text-amber-700 mb-1">
+                  <label className="block text-xs font-medium text-[var(--foreground)] opacity-70 mb-1">
                     Beskrivning
                   </label>
                   <input
@@ -246,12 +252,12 @@ export default function NyFakturaPage() {
                     onChange={(e) =>
                       handleLineChange(index, "beskrivning", e.target.value)
                     }
-                    className="w-full px-3 py-2 rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--input-border)] bg-[var(--card-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
                     placeholder="Produkt/tjänst"
                   />
                 </div>
                 <div className="col-span-4 md:col-span-2">
-                  <label className="block text-xs font-medium text-amber-700 mb-1">
+                  <label className="block text-xs font-medium text-[var(--foreground)] opacity-70 mb-1">
                     Antal
                   </label>
                   <input
@@ -260,12 +266,12 @@ export default function NyFakturaPage() {
                     onChange={(e) =>
                       handleLineChange(index, "antal", e.target.value)
                     }
-                    className="w-full px-3 py-2 rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--input-border)] bg-[var(--card-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
                     min="1"
                   />
                 </div>
                 <div className="col-span-4 md:col-span-2">
-                  <label className="block text-xs font-medium text-amber-700 mb-1">
+                  <label className="block text-xs font-medium text-[var(--foreground)] opacity-70 mb-1">
                     Pris (ex moms)
                   </label>
                   <input
@@ -275,12 +281,12 @@ export default function NyFakturaPage() {
                     onChange={(e) =>
                       handleLineChange(index, "prisPerEnhet", e.target.value)
                     }
-                    className="w-full px-3 py-2 rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--input-border)] bg-[var(--card-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
                     min="0"
                   />
                 </div>
                 <div className="col-span-3 md:col-span-2">
-                  <label className="block text-xs font-medium text-amber-700 mb-1">
+                  <label className="block text-xs font-medium text-[var(--foreground)] opacity-70 mb-1">
                     Moms
                   </label>
                   <select
@@ -288,7 +294,7 @@ export default function NyFakturaPage() {
                     onChange={(e) =>
                       handleLineChange(index, "momsSats", e.target.value)
                     }
-                    className="w-full px-3 py-2 rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--input-border)] bg-[var(--card-bg)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
                   >
                     <option value="0.12">12%</option>
                     <option value="0.25">25%</option>
@@ -297,10 +303,10 @@ export default function NyFakturaPage() {
                   </select>
                 </div>
                 <div className="col-span-1 md:col-span-1 text-right">
-                  <label className="block text-xs font-medium text-amber-700 mb-1">
+                  <label className="block text-xs font-medium text-[var(--foreground)] opacity-70 mb-1">
                     Summa
                   </label>
-                  <p className="py-2 text-sm font-medium text-amber-900">
+                  <p className="py-2 text-sm font-medium text-[var(--foreground)]">
                     {(rad.antal * rad.prisPerEnhet).toLocaleString("sv-SE")} kr
                   </p>
                 </div>
@@ -319,31 +325,96 @@ export default function NyFakturaPage() {
           </div>
 
           {/* Totals */}
-          <div className="border-t border-amber-200 pt-4 space-y-2">
+          <div className="border-t border-[var(--card-border)] pt-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-amber-700">Summa ex moms:</span>
-              <span className="text-amber-900 font-medium">
+              <span className="text-[var(--foreground)] opacity-70">Summa ex moms:</span>
+              <span className="text-[var(--foreground)] font-medium">
                 {totaltExMoms.toLocaleString("sv-SE")} kr
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-amber-700">Moms:</span>
-              <span className="text-amber-900 font-medium">
+              <span className="text-[var(--foreground)] opacity-70">Moms:</span>
+              <span className="text-[var(--foreground)] font-medium">
                 {totaltMoms.toLocaleString("sv-SE")} kr
               </span>
             </div>
-            <div className="flex justify-between text-lg font-bold border-t border-amber-200 pt-2">
-              <span className="text-amber-700">Att betala:</span>
-              <span className="text-amber-900">
+            <div className="flex justify-between text-lg font-bold border-t border-[var(--card-border)] pt-2">
+              <span className="text-[var(--foreground)] opacity-70">Att betala:</span>
+              <span className="text-[var(--foreground)]">
                 {totaltInklMoms.toLocaleString("sv-SE")} kr
               </span>
             </div>
           </div>
         </div>
 
+        {/* Betalning */}
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
+          <h2 className="font-semibold text-[var(--foreground)]">Betalning</h2>
+
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="betalningsTyp"
+                value="faktura"
+                checked={betalningsTyp === "faktura"}
+                onChange={() => {
+                  setBetalningsTyp("faktura");
+                  setSkickaKvittoMail(false);
+                }}
+                className="w-4 h-4 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-[var(--foreground)]">Faktura</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="betalningsTyp"
+                value="kvitto"
+                checked={betalningsTyp === "kvitto"}
+                onChange={() => setBetalningsTyp("kvitto")}
+                className="w-4 h-4 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-[var(--foreground)]">Kvitto</span>
+            </label>
+          </div>
+
+          {betalningsTyp === "kvitto" && (
+            <div className="pt-2 border-t border-[var(--card-border)]">
+              {(() => {
+                const selectedCustomer = customers.find(c => c.id === formData.kundId);
+                const hasEmail = selectedCustomer?.epost;
+
+                return (
+                  <label className={`flex items-center gap-2 ${!hasEmail ? 'opacity-50' : 'cursor-pointer'}`}>
+                    <input
+                      type="checkbox"
+                      checked={skickaKvittoMail}
+                      onChange={(e) => setSkickaKvittoMail(e.target.checked)}
+                      disabled={!hasEmail}
+                      className="w-4 h-4 text-amber-600 focus:ring-amber-500 rounded"
+                    />
+                    <Mail className="h-4 w-4 text-[var(--foreground)] opacity-70" />
+                    <span className="text-[var(--foreground)]">Skicka kvitto via e-post</span>
+                    {!formData.kundId && (
+                      <span className="text-xs text-[var(--muted)]">(välj kund först)</span>
+                    )}
+                    {formData.kundId && !hasEmail && (
+                      <span className="text-xs text-[var(--muted)]">(kunden saknar e-post)</span>
+                    )}
+                    {hasEmail && (
+                      <span className="text-xs text-[var(--muted)]">({selectedCustomer?.epost})</span>
+                    )}
+                  </label>
+                );
+              })()}
+            </div>
+          )}
+        </div>
+
         <div className="flex gap-4">
           <Button type="submit" disabled={loading}>
-            {loading ? "Sparar..." : "Skapa faktura"}
+            {loading ? "Sparar..." : betalningsTyp === "faktura" ? "Skapa faktura" : "Skapa kvitto"}
           </Button>
           <Link href="/fakturering">
             <Button variant="secondary" type="button">
