@@ -168,10 +168,10 @@ export default function KassabokPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BookOpen className="h-8 w-8 text-amber-600" />
+          <BookOpen className="h-8 w-8 text-amber-500" />
           <div>
-            <h1 className="text-2xl font-bold text-amber-900">Kassabok</h1>
-            <p className="text-amber-600">Hantera inkomster och utgifter</p>
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">Kassabok</h1>
+            <p className="text-[var(--muted)]">Hantera inkomster och utgifter</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -194,55 +194,55 @@ export default function KassabokPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            <span className="text-sm text-amber-600">Intäkter</span>
+            <TrendingUp className="h-5 w-5 text-green-500" />
+            <span className="text-sm text-[var(--muted)]">Intäkter</span>
           </div>
-          <p className="text-2xl font-bold text-green-700">
+          <p className="text-2xl font-bold text-green-500">
             {summary.income.toLocaleString("sv-SE")} kr
           </p>
-          <p className="text-xs text-amber-500">
+          <p className="text-xs text-[var(--muted)]">
             varav moms: {summary.incomeMoms.toLocaleString("sv-SE")} kr
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingDown className="h-5 w-5 text-red-600" />
-            <span className="text-sm text-amber-600">Utgifter</span>
+            <TrendingDown className="h-5 w-5 text-red-500" />
+            <span className="text-sm text-[var(--muted)]">Utgifter</span>
           </div>
-          <p className="text-2xl font-bold text-red-700">
+          <p className="text-2xl font-bold text-red-500">
             {summary.expenses.toLocaleString("sv-SE")} kr
           </p>
-          <p className="text-xs text-amber-500">
+          <p className="text-xs text-[var(--muted)]">
             varav moms: {summary.expensesMoms.toLocaleString("sv-SE")} kr
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <Calendar className="h-5 w-5 text-amber-600" />
-            <span className="text-sm text-amber-600">Resultat</span>
+            <Calendar className="h-5 w-5 text-amber-500" />
+            <span className="text-sm text-[var(--muted)]">Resultat</span>
           </div>
           <p
-            className={`text-2xl font-bold ${summary.income - summary.expenses >= 0 ? "text-green-700" : "text-red-700"}`}
+            className={`text-2xl font-bold ${summary.income - summary.expenses >= 0 ? "text-green-500" : "text-red-500"}`}
           >
             {(summary.income - summary.expenses).toLocaleString("sv-SE")} kr
           </p>
-          <p className="text-xs text-amber-500">
+          <p className="text-xs text-[var(--muted)]">
             Moms att redovisa:{" "}
             {(summary.incomeMoms - summary.expensesMoms).toLocaleString("sv-SE")}{" "}
             kr
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm ring-1 ring-amber-100">
+        <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <BookOpen className="h-5 w-5 text-amber-600" />
-            <span className="text-sm text-amber-600">Transaktioner</span>
+            <BookOpen className="h-5 w-5 text-amber-500" />
+            <span className="text-sm text-[var(--muted)]">Transaktioner</span>
           </div>
-          <p className="text-2xl font-bold text-amber-900">
+          <p className="text-2xl font-bold text-[var(--foreground)]">
             {transactions.length}
           </p>
-          <p className="text-xs text-amber-500">totalt {selectedYear}</p>
+          <p className="text-xs text-[var(--muted)]">totalt {selectedYear}</p>
         </div>
       </div>
 
@@ -251,7 +251,7 @@ export default function KassabokPage() {
         <select
           value={selectedYear}
           onChange={(e) => setSelectedYear(e.target.value)}
-          className="rounded-lg border border-amber-200 bg-white px-3 py-2 text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="rounded-lg border border-[var(--input-border)] bg-[var(--card-bg)] px-3 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500"
         >
           {years.map((year) => (
             <option key={year} value={year}>
@@ -262,7 +262,7 @@ export default function KassabokPage() {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="rounded-lg border border-amber-200 bg-white px-3 py-2 text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="rounded-lg border border-[var(--input-border)] bg-[var(--card-bg)] px-3 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500"
         >
           <option value="">Alla typer</option>
           <option value="Försäljning">Försäljning</option>
@@ -271,15 +271,15 @@ export default function KassabokPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="bg-white rounded-xl shadow-sm ring-1 ring-amber-100 overflow-hidden">
+      <div className="bg-[var(--card-bg)] rounded-xl shadow-sm ring-1 ring-[var(--card-border)] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-amber-600">Laddar...</div>
+          <div className="p-8 text-center text-[var(--muted)]">Laddar...</div>
         ) : transactions.length === 0 ? (
-          <div className="p-8 text-center text-amber-600">
+          <div className="p-8 text-center text-[var(--muted)]">
             <p>Inga transaktioner registrerade.</p>
             <Link
               href="/kassabok/ny"
-              className="text-amber-700 underline mt-2 inline-block"
+              className="text-amber-500 underline mt-2 inline-block"
             >
               Lägg till din första transaktion
             </Link>
@@ -287,46 +287,46 @@ export default function KassabokPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-amber-50 border-b border-amber-100">
+              <thead className="bg-[var(--input-bg)] border-b border-[var(--card-border)]">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)]">
                     Datum
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)]">
                     Typ
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)]">
                     Beskrivning
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--foreground)]">
                     Mottagare
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-[var(--foreground)]">
                     Ex moms
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-[var(--foreground)]">
                     Moms
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-[var(--foreground)]">
                     Inkl moms
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-amber-700">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-[var(--foreground)]">
                     Åtgärder
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-amber-100">
+              <tbody className="divide-y divide-[var(--card-border)]">
                 {transactions.map((t) => (
-                  <tr key={t.id} className="hover:bg-amber-50/50">
-                    <td className="px-4 py-3 text-sm text-amber-900">
+                  <tr key={t.id} className="hover:bg-[var(--input-bg)]">
+                    <td className="px-4 py-3 text-sm text-[var(--foreground)]">
                       {new Date(t.datum).toLocaleDateString("sv-SE")}
                     </td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           t.handelseTyp === "Försäljning"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-green-500/20 text-green-500"
+                            : "bg-red-500/20 text-red-500"
                         }`}
                       >
                         {t.handelseTyp === "Försäljning" ? (
@@ -337,28 +337,28 @@ export default function KassabokPage() {
                         {t.handelseTyp}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-amber-900">
+                    <td className="px-4 py-3 text-sm text-[var(--foreground)]">
                       {t.beskrivning}
                       {t.antalBurkar && (
-                        <span className="text-amber-500 ml-1">
+                        <span className="text-[var(--muted)] ml-1">
                           ({t.antalBurkar} st)
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-amber-700">
+                    <td className="px-4 py-3 text-sm text-[var(--muted)]">
                       {t.mottagare || "-"}
                     </td>
-                    <td className="px-4 py-3 text-sm text-amber-900 text-right">
+                    <td className="px-4 py-3 text-sm text-[var(--foreground)] text-right">
                       {t.beloppExMoms.toLocaleString("sv-SE")} kr
                     </td>
-                    <td className="px-4 py-3 text-sm text-amber-700 text-right">
+                    <td className="px-4 py-3 text-sm text-[var(--muted)] text-right">
                       {t.momsBelopp.toLocaleString("sv-SE")} kr
                     </td>
                     <td
                       className={`px-4 py-3 text-sm font-medium text-right ${
                         t.handelseTyp === "Försäljning"
-                          ? "text-green-700"
-                          : "text-red-700"
+                          ? "text-green-500"
+                          : "text-red-500"
                       }`}
                     >
                       {t.beloppInklMoms.toLocaleString("sv-SE")} kr
@@ -366,13 +366,13 @@ export default function KassabokPage() {
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/kassabok/${t.id}/redigera`}>
-                          <button className="p-1 text-amber-600 hover:text-amber-800">
+                          <button className="p-1 text-amber-500 hover:text-amber-400">
                             <Edit className="h-4 w-4" />
                           </button>
                         </Link>
                         <button
                           onClick={() => handleDelete(t.id)}
-                          className="p-1 text-red-600 hover:text-red-800"
+                          className="p-1 text-red-500 hover:text-red-400"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
