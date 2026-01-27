@@ -40,18 +40,18 @@ export default async function RedigeraSamhällePage({ params }: PageProps) {
       <div className="flex items-center gap-4">
         <Link
           href={`/samhallen/${colony.id}`}
-          className="flex items-center justify-center w-10 h-10 rounded-lg bg-white ring-1 ring-amber-200 text-amber-600 hover:bg-amber-50 transition-colors"
+          className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--card-bg)] ring-1 ring-[var(--card-border)] text-[var(--accent)] hover:bg-[var(--input-bg)] transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-amber-900">Redigera samhälle</h1>
-          <p className="text-amber-600">{colony.namn}</p>
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Redigera samhälle</h1>
+          <p className="text-[var(--muted)]">{colony.namn}</p>
         </div>
       </div>
 
       {/* Form */}
-      <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+      <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
         <ColonyForm apiaries={apiaries} colony={colony} />
       </div>
     </div>

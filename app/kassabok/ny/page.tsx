@@ -96,22 +96,22 @@ export default function NyTransaktionPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/kassabok"
-          className="p-2 rounded-lg hover:bg-amber-100 transition-colors"
+          className="p-2 rounded-lg hover:bg-[var(--input-bg)] transition-colors"
         >
-          <ArrowLeft className="h-5 w-5 text-amber-600" />
+          <ArrowLeft className="h-5 w-5 text-[var(--accent)]" />
         </Link>
         <div className="flex items-center gap-3">
-          <BookOpen className="h-8 w-8 text-amber-600" />
+          <BookOpen className="h-8 w-8 text-[var(--accent)]" />
           <div>
-            <h1 className="text-2xl font-bold text-amber-900">Ny transaktion</h1>
-            <p className="text-amber-600">Registrera en inkomst eller utgift</p>
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">Ny transaktion</h1>
+            <p className="text-[var(--muted)]">Registrera en inkomst eller utgift</p>
           </div>
         </div>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
           {error && (
             <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">
               {error}
@@ -204,24 +204,24 @@ export default function NyTransaktionPage() {
           </div>
 
           {/* Summary */}
-          <div className="bg-amber-50 rounded-lg p-4 space-y-2">
+          <div className="bg-[var(--input-bg)] rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-amber-700">Belopp ex moms:</span>
-              <span className="text-amber-900 font-medium">
+              <span className="text-[var(--muted)]">Belopp ex moms:</span>
+              <span className="text-[var(--foreground)] font-medium">
                 {beloppExMoms.toLocaleString("sv-SE")} kr
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-amber-700">
+              <span className="text-[var(--muted)]">
                 Moms ({(momsSats * 100).toFixed(0)}%):
               </span>
-              <span className="text-amber-900 font-medium">
+              <span className="text-[var(--foreground)] font-medium">
                 {momsBelopp.toLocaleString("sv-SE")} kr
               </span>
             </div>
-            <div className="flex justify-between border-t border-amber-200 pt-2">
-              <span className="text-amber-700 font-medium">Totalt inkl moms:</span>
-              <span className="text-amber-900 font-bold">
+            <div className="flex justify-between border-t border-[var(--card-border)] pt-2">
+              <span className="text-[var(--muted)] font-medium">Totalt inkl moms:</span>
+              <span className="text-[var(--foreground)] font-bold">
                 {beloppInklMoms.toLocaleString("sv-SE")} kr
               </span>
             </div>

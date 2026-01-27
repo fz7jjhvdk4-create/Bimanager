@@ -57,22 +57,22 @@ export default function NyKundPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/kunder"
-          className="p-2 rounded-lg hover:bg-amber-100 transition-colors"
+          className="p-2 rounded-lg hover:bg-[var(--input-bg)] transition-colors"
         >
-          <ArrowLeft className="h-5 w-5 text-amber-600" />
+          <ArrowLeft className="h-5 w-5 text-[var(--accent)]" />
         </Link>
         <div className="flex items-center gap-3">
-          <Users className="h-8 w-8 text-amber-600" />
+          <Users className="h-8 w-8 text-[var(--accent)]" />
           <div>
-            <h1 className="text-2xl font-bold text-amber-900">Ny kund</h1>
-            <p className="text-amber-600">Lägg till en ny kund i registret</p>
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">Ny kund</h1>
+            <p className="text-[var(--muted)]">Lägg till en ny kund i registret</p>
           </div>
         </div>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
           {error && (
             <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">
               {error}
