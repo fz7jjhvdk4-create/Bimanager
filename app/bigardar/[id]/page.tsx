@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
 import DeleteApiaryButton from "./DeleteApiaryButton";
+
+export const dynamic = "force-dynamic";
 import ApiaryMapView from "./ApiaryMapView";
 
 interface PageProps {

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
 import ColonyForm from "@/components/forms/ColonyForm";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

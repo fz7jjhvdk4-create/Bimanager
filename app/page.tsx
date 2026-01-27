@@ -2,6 +2,8 @@ import { MapPin, Hexagon, Scale, Calendar } from "lucide-react";
 import prisma from "@/lib/db";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 async function getStats() {
   const [apiaryCount, colonyCount, activeColonyCount, events] =
     await Promise.all([

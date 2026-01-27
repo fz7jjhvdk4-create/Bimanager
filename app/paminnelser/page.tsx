@@ -4,6 +4,8 @@ import Link from "next/link";
 import AddReminderButton from "./AddReminderButton";
 import ReminderCard from "./ReminderCard";
 
+export const dynamic = "force-dynamic";
+
 async function getReminders() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
