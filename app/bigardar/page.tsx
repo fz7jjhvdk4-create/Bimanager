@@ -2,6 +2,8 @@ import { MapPin, Plus, Hexagon } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 async function getApiaries() {
   return prisma.apiary.findMany({
     include: {

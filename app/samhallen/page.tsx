@@ -3,6 +3,8 @@ import Link from "next/link";
 import prisma from "@/lib/db";
 import ColonyFilters from "./ColonyFilters";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   searchParams: Promise<{ status?: string; bigard?: string }>;
 }

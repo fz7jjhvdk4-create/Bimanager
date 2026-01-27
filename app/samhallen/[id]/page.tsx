@@ -13,6 +13,8 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
 import DeleteColonyButton from "./DeleteColonyButton";
 import AddEventButton from "./AddEventButton";
+
+export const dynamic = "force-dynamic";
 import EventTimeline from "./EventTimeline";
 
 interface PageProps {

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import ColonyForm from "@/components/forms/ColonyForm";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   searchParams: Promise<{ bigard?: string }>;
 }
