@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
-// GET all reminders (with optional filters)
+// GET all reminders for current user (with optional filters)
 export async function GET(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const searchParams = request.nextUrl.searchParams;
     const upcoming = searchParams.get("upcoming");
     const samhalleId = searchParams.get("samhalleId");
     const bigardId = searchParams.get("bigardId");
     const utford = searchParams.get("utford");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { userId };
 
     if (samhalleId) where.samhalleId = samhalleId;
     if (bigardId) where.bigardId = bigardId;
@@ -68,6 +72,9 @@ export async function GET(request: NextRequest) {
 // POST new reminder
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
     const {
       titel,
@@ -89,6 +96,7 @@ export async function POST(request: NextRequest) {
 
     const reminder = await prisma.reminder.create({
       data: {
+        userId,
         titel,
         beskrivning: beskrivning || null,
         datum: new Date(datum),

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { searchParams } = new URL(request.url);
     const year = searchParams.get("year") || new Date().getFullYear().toString();
 
@@ -19,12 +23,14 @@ export async function GET(request: Request) {
     ] = await Promise.all([
       // Bigårdar
       prisma.apiary.findMany({
+        where: { userId },
         include: {
           colonies: true,
         },
       }),
       // Samhällen
       prisma.colony.findMany({
+        where: { userId },
         include: {
           bigard: true,
           events: {
@@ -40,6 +46,7 @@ export async function GET(request: Request) {
       // Händelser för året
       prisma.event.findMany({
         where: {
+          userId,
           datum: {
             gte: startOfYear,
             lt: endOfYear,
@@ -57,6 +64,7 @@ export async function GET(request: Request) {
       // Transaktioner för året
       prisma.accounting.findMany({
         where: {
+          userId,
           datum: {
             gte: startOfYear,
             lt: endOfYear,
@@ -66,6 +74,7 @@ export async function GET(request: Request) {
       }),
       // Alla händelser (för historik)
       prisma.event.findMany({
+        where: { userId },
         orderBy: { datum: "asc" },
       }),
     ]);

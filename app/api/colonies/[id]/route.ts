@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -8,9 +9,12 @@ interface RouteParams {
 // GET single colony with events
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
-    const colony = await prisma.colony.findUnique({
-      where: { id },
+    const colony = await prisma.colony.findFirst({
+      where: { id, userId },
       include: {
         bigard: true,
         events: {
@@ -48,6 +52,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT update colony
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
     const body = await request.json();
     const {
@@ -69,6 +76,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         { error: "Namn är obligatoriskt" },
         { status: 400 }
       );
+    }
+
+    // Verify ownership
+    const existing = await prisma.colony.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Colony not found" }, { status: 404 });
     }
 
     const colony = await prisma.colony.update({
@@ -101,7 +117,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE colony
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
+
+    // Verify ownership
+    const existing = await prisma.colony.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Colony not found" }, { status: 404 });
+    }
 
     await prisma.colony.delete({
       where: { id },

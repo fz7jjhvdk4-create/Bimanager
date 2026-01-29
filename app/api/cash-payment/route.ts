@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 // POST - Registrera kontant betalning
 export async function POST(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
 
     const {
@@ -24,9 +28,10 @@ export async function POST(request: Request) {
       // Generera kvittonummer med årtal: KV26001, KV26002 etc.
       const currentYear = new Date().getFullYear().toString().slice(-2); // "26" för 2026
 
-      // Hitta senaste kvittonumret för detta år i kassaboken
+      // Hitta senaste kvittonumret för detta år och användare i kassaboken
       const lastReceipt = await prisma.accounting.findFirst({
         where: {
+          userId,
           kvittoNummer: {
             startsWith: `KV${currentYear}`,
           },
@@ -47,6 +52,7 @@ export async function POST(request: Request) {
     // Skapa kassabokspost
     const accounting = await prisma.accounting.create({
       data: {
+        userId,
         datum: new Date(datum),
         handelseTyp: "Försäljning",
         beskrivning: kvittoNummer

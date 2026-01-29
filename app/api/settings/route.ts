@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
-// GET - Hämta inställningar
+// GET - Hämta inställningar för current user
 export async function GET() {
   try {
-    let settings = await prisma.settings.findFirst();
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
+    let settings = await prisma.settings.findFirst({
+      where: { userId },
+    });
 
     // Skapa standardinställningar om de inte finns
     if (!settings) {
       settings = await prisma.settings.create({
         data: {
-          id: "default",
+          userId,
           nastaFakturaNummer: 1,
         },
       });
@@ -29,6 +35,9 @@ export async function GET() {
 // PUT - Uppdatera inställningar
 export async function PUT(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
 
     const {
@@ -46,7 +55,9 @@ export async function PUT(request: Request) {
     } = body;
 
     // Försök uppdatera eller skapa
-    let settings = await prisma.settings.findFirst();
+    let settings = await prisma.settings.findFirst({
+      where: { userId },
+    });
 
     if (settings) {
       settings = await prisma.settings.update({
@@ -68,7 +79,7 @@ export async function PUT(request: Request) {
     } else {
       settings = await prisma.settings.create({
         data: {
-          id: "default",
+          userId,
           foretagsnamn,
           organisationsnummer,
           adress,

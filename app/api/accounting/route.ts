@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
-// GET - Hämta alla transaktioner
+// GET - Hämta alla transaktioner för current user
 export async function GET(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { searchParams } = new URL(request.url);
     const year = searchParams.get("year");
     const type = searchParams.get("type");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { userId };
 
     if (year) {
       const startOfYear = new Date(`${year}-01-01`);
@@ -44,6 +48,9 @@ export async function GET(request: Request) {
 // POST - Skapa ny transaktion
 export async function POST(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
 
     const {
@@ -65,6 +72,7 @@ export async function POST(request: Request) {
 
     const transaction = await prisma.accounting.create({
       data: {
+        userId,
         datum: new Date(datum),
         handelseTyp,
         beskrivning,

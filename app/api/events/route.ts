@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
-// GET all events (with optional filters)
+// GET all events for current user (with optional filters)
 export async function GET(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const searchParams = request.nextUrl.searchParams;
     const samhalleId = searchParams.get("samhalleId");
     const handelseTyp = searchParams.get("handelseTyp");
     const limit = searchParams.get("limit");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { userId };
     if (samhalleId) where.samhalleId = samhalleId;
     if (handelseTyp) where.handelseTyp = handelseTyp;
 
@@ -44,6 +48,9 @@ export async function GET(request: NextRequest) {
 // POST new event
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
     const { samhalleId, handelseTyp, datum, beskrivning, data } = body;
 
@@ -54,9 +61,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify colony exists
-    const colony = await prisma.colony.findUnique({
-      where: { id: samhalleId },
+    // Verify colony exists and belongs to user
+    const colony = await prisma.colony.findFirst({
+      where: { id: samhalleId, userId },
       include: { bigard: true },
     });
 
@@ -75,6 +82,7 @@ export async function POST(request: NextRequest) {
       // Skapa det nya samhället
       const newColony = await prisma.colony.create({
         data: {
+          userId,
           bigardId: targetBigardId,
           namn: data.nyttSamhalleNamn || `Avläggare från ${colony.namn}`,
           drottningRas: data.nyttSamhalleDrottningRas || colony.drottningRas,
@@ -96,6 +104,7 @@ export async function POST(request: NextRequest) {
 
     const event = await prisma.event.create({
       data: {
+        userId,
         samhalleId,
         handelseTyp,
         datum: new Date(datum),

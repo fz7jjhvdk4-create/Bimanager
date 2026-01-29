@@ -10,9 +10,77 @@ datasource db {
   provider = "postgresql"
 }
 
+// ==================== AUTHENTICATION ====================
+
+// Användare (User)
+model User {
+  id             String    @id @default(uuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  hashedPassword String?
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts    Account[]
+  sessions    Session[]
+  apiaries    Apiary[]
+  colonies    Colony[]
+  events      Event[]
+  accounting  Accounting[]
+  customers   Customer[]
+  invoices    Invoice[]
+  settings    Settings[]
+  reminders   Reminder[]
+}
+
+// OAuth Konto (för externa providers som Google, GitHub)
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// Session
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Verifieringstoken (för e-postverifiering)
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ==================== APPLICATION DATA ====================
+
 // Bigård (Apiary)
 model Apiary {
   id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   namn        String
   adress      String?
   latitude    Float?
@@ -23,11 +91,15 @@ model Apiary {
 
   colonies    Colony[]
   reminders   Reminder[]
+
+  @@index([userId])
 }
 
 // Samhälle (Colony)
 model Colony {
   id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   bigardId          String
   bigard            Apiary   @relation(fields: [bigardId], references: [id], onDelete: Cascade)
   namn              String
@@ -49,11 +121,15 @@ model Colony {
   skapadFran        Colony?  @relation("AvlaggareRelation", fields: [skapadFranId], references: [id])
   skapadFranId      String?
   avlaggare         Colony[] @relation("AvlaggareRelation")
+
+  @@index([userId])
 }
 
 // Händelse (Event)
 model Event {
   id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   samhalleId   String
   samhalle     Colony   @relation(fields: [samhalleId], references: [id], onDelete: Cascade)
   handelseTyp  String   // Inspektion, Skörd, Invintring, Avläggare, Hälsoåtgärd, Anteckning
@@ -61,11 +137,15 @@ model Event {
   beskrivning  String?
   data         String?  // JSON för typspecifik data
   skapadDatum  DateTime @default(now())
+
+  @@index([userId])
 }
 
 // Kassabok (Accounting)
 model Accounting {
   id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   datum           DateTime
   handelseTyp     String   // Försäljning, Inköp
   beskrivning     String
@@ -83,11 +163,15 @@ model Accounting {
 
   faktura         Invoice? @relation(fields: [fakturaId], references: [id])
   fakturaId       String?
+
+  @@index([userId])
 }
 
 // Kund (Customer)
 model Customer {
   id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   namn                String
   adress              String?
   postnummer          String?
@@ -99,12 +183,16 @@ model Customer {
   uppdateradDatum     DateTime @updatedAt
 
   invoices            Invoice[]
+
+  @@index([userId])
 }
 
 // Faktura (Invoice)
 model Invoice {
   id              String   @id @default(uuid())
-  fakturaNummer   String   @unique
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fakturaNummer   String
   kundId          String
   kund            Customer @relation(fields: [kundId], references: [id])
   fakturaDatum    DateTime
@@ -120,11 +208,16 @@ model Invoice {
   uppdateradDatum DateTime @updatedAt
 
   transactions    Accounting[]
+
+  @@unique([userId, fakturaNummer])
+  @@index([userId])
 }
 
 // Företagsinställningar (Settings)
 model Settings {
-  id                  String   @id @default("default")
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   foretagsnamn        String?
   organisationsnummer String?
   adress              String?
@@ -143,6 +236,8 @@ model Settings {
 // Påminnelse (Reminder)
 model Reminder {
   id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   titel           String
   beskrivning     String?
   datum           DateTime
@@ -157,4 +252,6 @@ model Reminder {
   upprepning      String?  // Ingen, Varje vecka, Varje månad, Varje år
   skapadDatum     DateTime @default(now())
   uppdateradDatum DateTime @updatedAt
+
+  @@index([userId])
 }
