@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
-// GET all colonies
+// GET all colonies for current user
 export async function GET(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const searchParams = request.nextUrl.searchParams;
     const bigardId = searchParams.get("bigardId");
     const status = searchParams.get("status");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { userId };
     if (bigardId) where.bigardId = bigardId;
     if (status) where.status = status;
 
@@ -41,6 +45,9 @@ export async function GET(request: NextRequest) {
 // POST new colony
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
     const {
       bigardId,
@@ -63,9 +70,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify apiary exists
-    const apiary = await prisma.apiary.findUnique({
-      where: { id: bigardId },
+    // Verify apiary exists and belongs to user
+    const apiary = await prisma.apiary.findFirst({
+      where: { id: bigardId, userId },
     });
 
     if (!apiary) {
@@ -77,6 +84,7 @@ export async function POST(request: NextRequest) {
 
     const colony = await prisma.colony.create({
       data: {
+        userId,
         bigardId,
         namn,
         platsNummer: platsNummer || null,

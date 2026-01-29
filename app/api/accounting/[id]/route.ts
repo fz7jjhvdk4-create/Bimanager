@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 // GET - Hämta en transaktion
 export async function GET(
@@ -7,9 +8,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
-    const transaction = await prisma.accounting.findUnique({
-      where: { id },
+    const transaction = await prisma.accounting.findFirst({
+      where: { id, userId },
       include: {
         faktura: true,
       },
@@ -38,8 +42,23 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
     const body = await request.json();
+
+    // Verify ownership
+    const existing = await prisma.accounting.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Transaktion hittades inte" },
+        { status: 404 }
+      );
+    }
 
     const {
       datum,
@@ -92,7 +111,23 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
+
+    // Verify ownership
+    const existing = await prisma.accounting.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Transaktion hittades inte" },
+        { status: 404 }
+      );
+    }
+
     await prisma.accounting.delete({
       where: { id },
     });

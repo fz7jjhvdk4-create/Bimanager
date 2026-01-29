@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 interface InvoiceLine {
   beskrivning: string;
@@ -23,8 +24,10 @@ interface InvoiceWithCustomer {
 }
 
 // Funktion för att skicka kvitto via e-post med Mail.app
-async function sendReceiptEmail(invoice: InvoiceWithCustomer, rader: InvoiceLine[]) {
-  const settings = await prisma.settings.findFirst();
+async function sendReceiptEmail(invoice: InvoiceWithCustomer, rader: InvoiceLine[], userId: string) {
+  const settings = await prisma.settings.findFirst({
+    where: { userId },
+  });
   const { exec } = await import("child_process");
   const { promisify } = await import("util");
   const execAsync = promisify(exec);
@@ -76,14 +79,17 @@ ${settings?.telefon ? `Tel: ${settings.telefon}` : ""}`;
   }
 }
 
-// GET - Hämta alla fakturor
+// GET - Hämta alla fakturor för current user
 export async function GET(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const customerId = searchParams.get("customerId");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { userId };
 
     if (status) {
       where.status = status;
@@ -114,6 +120,9 @@ export async function GET(request: Request) {
 // POST - Skapa ny faktura eller kvitto
 export async function POST(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
 
     const {
@@ -125,6 +134,18 @@ export async function POST(request: Request) {
       skickaKvittoMail = false,
       status = "Utkast",
     } = body;
+
+    // Verify customer belongs to user
+    const customer = await prisma.customer.findFirst({
+      where: { id: kundId, userId },
+    });
+
+    if (!customer) {
+      return NextResponse.json(
+        { error: "Kund hittades inte" },
+        { status: 404 }
+      );
+    }
 
     // Beräkna totaler
     let totaltExMoms = 0;
@@ -144,9 +165,10 @@ export async function POST(request: Request) {
     const currentYear = new Date().getFullYear().toString().slice(-2); // "26" för 2026
     const prefix = typ === "kvitto" ? "K" : "F";
 
-    // Hitta senaste numret för detta år och typ
+    // Hitta senaste numret för detta år, typ och användare
     const lastInvoice = await prisma.invoice.findFirst({
       where: {
+        userId,
         fakturaNummer: {
           startsWith: `${prefix}${currentYear}`,
         },
@@ -169,6 +191,7 @@ export async function POST(request: Request) {
     // Skapa fakturan/kvittot
     const invoice = await prisma.invoice.create({
       data: {
+        userId,
         fakturaNummer,
         kundId,
         fakturaDatum: new Date(fakturaDatum),
@@ -197,6 +220,7 @@ export async function POST(request: Request) {
 
       await prisma.accounting.create({
         data: {
+          userId,
           datum: new Date(fakturaDatum),
           handelseTyp: "Försäljning",
           beskrivning: `Kvitto ${fakturaNummer} - ${invoice.kund.namn}`,
@@ -216,7 +240,7 @@ export async function POST(request: Request) {
     if (typ === "kvitto" && skickaKvittoMail && invoice.kund.epost) {
       // Skicka e-post med kvitto
       try {
-        await sendReceiptEmail(invoice, parsedRader);
+        await sendReceiptEmail(invoice, parsedRader, userId);
       } catch (emailError) {
         console.error("Kunde inte skicka kvitto via e-post:", emailError);
       }

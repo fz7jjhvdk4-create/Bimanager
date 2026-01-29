@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -8,10 +9,13 @@ interface RouteParams {
 // GET single reminder
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
 
-    const reminder = await prisma.reminder.findUnique({
-      where: { id },
+    const reminder = await prisma.reminder.findFirst({
+      where: { id, userId },
       include: {
         samhalle: {
           select: {
@@ -48,8 +52,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT update reminder
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
     const body = await request.json();
+
+    // Verify ownership
+    const existing = await prisma.reminder.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Påminnelsen hittades inte" },
+        { status: 404 }
+      );
+    }
 
     const reminder = await prisma.reminder.update({
       where: { id },
@@ -92,6 +111,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
       await prisma.reminder.create({
         data: {
+          userId,
           titel: reminder.titel,
           beskrivning: reminder.beskrivning,
           datum: nextDate,
@@ -117,7 +137,22 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE reminder
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
+
+    // Verify ownership
+    const existing = await prisma.reminder.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Påminnelsen hittades inte" },
+        { status: 404 }
+      );
+    }
 
     await prisma.reminder.delete({
       where: { id },

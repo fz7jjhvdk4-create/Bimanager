@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
-// GET - Hämta alla kunder
+// GET - Hämta alla kunder för current user
 export async function GET(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
 
     const where = search
       ? {
+          userId,
           OR: [
             { namn: { contains: search } },
             { epost: { contains: search } },
@@ -16,7 +21,7 @@ export async function GET(request: Request) {
             { ort: { contains: search } },
           ],
         }
-      : {};
+      : { userId };
 
     const customers = await prisma.customer.findMany({
       where,
@@ -46,6 +51,9 @@ export async function GET(request: Request) {
 // POST - Skapa ny kund
 export async function POST(request: Request) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
 
     const {
@@ -60,6 +68,7 @@ export async function POST(request: Request) {
 
     const customer = await prisma.customer.create({
       data: {
+        userId,
         namn,
         adress,
         postnummer,

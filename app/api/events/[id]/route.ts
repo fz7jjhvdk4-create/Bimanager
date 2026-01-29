@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -8,9 +9,12 @@ interface RouteParams {
 // GET single event
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
-    const event = await prisma.event.findUnique({
-      where: { id },
+    const event = await prisma.event.findFirst({
+      where: { id, userId },
       include: {
         samhalle: {
           include: {
@@ -37,9 +41,21 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT update event
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
     const body = await request.json();
     const { handelseTyp, datum, beskrivning, data } = body;
+
+    // Verify ownership
+    const existing = await prisma.event.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
 
     const event = await prisma.event.update({
       where: { id },
@@ -64,7 +80,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE event
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
+
+    // Verify ownership
+    const existing = await prisma.event.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
 
     await prisma.event.delete({
       where: { id },

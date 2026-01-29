@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -8,9 +9,12 @@ interface RouteParams {
 // GET single apiary
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
-    const apiary = await prisma.apiary.findUnique({
-      where: { id },
+    const apiary = await prisma.apiary.findFirst({
+      where: { id, userId },
       include: {
         colonies: {
           orderBy: { platsNummer: "asc" },
@@ -35,12 +39,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT update apiary
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
     const body = await request.json();
     const { namn, adress, latitude, longitude, beskrivning } = body;
 
     if (!namn) {
       return NextResponse.json({ error: "Namn is required" }, { status: 400 });
+    }
+
+    // Verify ownership
+    const existing = await prisma.apiary.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
     }
 
     const apiary = await prisma.apiary.update({
@@ -67,7 +83,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE apiary
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
+
+    // Verify ownership
+    const existing = await prisma.apiary.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
+    }
 
     // Check if apiary has colonies
     const coloniesCount = await prisma.colony.count({

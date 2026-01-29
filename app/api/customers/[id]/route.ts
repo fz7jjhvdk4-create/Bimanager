@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 // GET - Hämta en kund
 export async function GET(
@@ -7,9 +8,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
-    const customer = await prisma.customer.findUnique({
-      where: { id },
+    const customer = await prisma.customer.findFirst({
+      where: { id, userId },
       include: {
         invoices: {
           orderBy: { fakturaDatum: "desc" },
@@ -40,8 +44,23 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
     const body = await request.json();
+
+    // Verify ownership
+    const existing = await prisma.customer.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Kund hittades inte" },
+        { status: 404 }
+      );
+    }
 
     const {
       namn,
@@ -82,15 +101,25 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
 
-    // Kontrollera om kunden har fakturor
-    const customer = await prisma.customer.findUnique({
-      where: { id },
+    // Kontrollera om kunden finns och tillhör användaren
+    const customer = await prisma.customer.findFirst({
+      where: { id, userId },
       include: { invoices: true },
     });
 
-    if (customer?.invoices.length) {
+    if (!customer) {
+      return NextResponse.json(
+        { error: "Kund hittades inte" },
+        { status: 404 }
+      );
+    }
+
+    if (customer.invoices.length) {
       return NextResponse.json(
         { error: "Kan inte ta bort kund med fakturor" },
         { status: 400 }

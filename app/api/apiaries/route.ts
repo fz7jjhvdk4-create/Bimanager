@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
-// GET all apiaries
+// GET all apiaries for current user
 export async function GET() {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const apiaries = await prisma.apiary.findMany({
+      where: { userId },
       include: {
         _count: {
           select: { colonies: true },
@@ -39,6 +44,9 @@ export async function GET() {
 // POST new apiary
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const body = await request.json();
     const { namn, adress, latitude, longitude, beskrivning } = body;
 
@@ -48,6 +56,7 @@ export async function POST(request: NextRequest) {
 
     const apiary = await prisma.apiary.create({
       data: {
+        userId,
         namn,
         adress: adress || null,
         latitude: latitude || null,

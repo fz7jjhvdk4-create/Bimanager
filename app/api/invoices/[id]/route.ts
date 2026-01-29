@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
 // GET - Hämta en faktura
 export async function GET(
@@ -7,9 +8,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
-    const invoice = await prisma.invoice.findUnique({
-      where: { id },
+    const invoice = await prisma.invoice.findFirst({
+      where: { id, userId },
       include: {
         kund: true,
         transactions: true,
@@ -39,8 +43,23 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
     const body = await request.json();
+
+    // Verify ownership
+    const existing = await prisma.invoice.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Faktura hittades inte" },
+        { status: 404 }
+      );
+    }
 
     const { fakturaDatum, forfallDatum, rader, status } = body;
 
@@ -87,12 +106,13 @@ export async function PUT(
     // Om fakturan markeras som betald, skapa en transaktion i kassaboken
     if (status === "Betald") {
       const existingTransaction = await prisma.accounting.findFirst({
-        where: { fakturaId: id },
+        where: { fakturaId: id, userId },
       });
 
       if (!existingTransaction) {
         await prisma.accounting.create({
           data: {
+            userId,
             datum: new Date(),
             handelseTyp: "Försäljning",
             beskrivning: `Faktura ${invoice.fakturaNummer}`,
@@ -124,11 +144,26 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorizedResponse();
+
     const { id } = await params;
+
+    // Verify ownership
+    const existing = await prisma.invoice.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Faktura hittades inte" },
+        { status: 404 }
+      );
+    }
 
     // Ta bort eventuella transaktioner kopplade till fakturan
     await prisma.accounting.deleteMany({
-      where: { fakturaId: id },
+      where: { fakturaId: id, userId },
     });
 
     await prisma.invoice.delete({
