@@ -17,10 +17,25 @@ async function main() {
   await prisma.event.deleteMany();
   await prisma.colony.deleteMany();
   await prisma.apiary.deleteMany();
+  await prisma.settings.deleteMany();
+
+  // Create or find test user
+  const testUser = await prisma.user.upsert({
+    where: { email: "test@example.com" },
+    update: {},
+    create: {
+      email: "test@example.com",
+      name: "Test Biodlare",
+      hashedPassword: "$2a$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u", // password: "test123"
+    },
+  });
+
+  const userId = testUser.id;
 
   // Create apiaries
   const dungen = await prisma.apiary.create({
     data: {
+      userId,
       namn: "Dungen",
       adress: "Dungens gård, 123 45 Skogsbo",
       latitude: 59.3293,
@@ -31,6 +46,7 @@ async function main() {
 
   const krattorpEken = await prisma.apiary.create({
     data: {
+      userId,
       namn: "Krattorp Eken",
       adress: "Krattorpsvägen 12, 123 45 Landsbygden",
       latitude: 59.4,
@@ -41,6 +57,7 @@ async function main() {
 
   const kroken = await prisma.apiary.create({
     data: {
+      userId,
       namn: "Kroken",
       adress: "Krokvägen 5, 123 46 Ängsvik",
       latitude: 59.35,
@@ -51,6 +68,7 @@ async function main() {
 
   const mjolkladan = await prisma.apiary.create({
     data: {
+      userId,
       namn: "Mjölkladan",
       adress: "Ladugårdsvägen 8, 123 47 Bondby",
       latitude: 59.28,
@@ -61,6 +79,7 @@ async function main() {
 
   const odeby = await prisma.apiary.create({
     data: {
+      userId,
       namn: "Ödeby",
       adress: "Ödebyvägen 1, 123 48 Ödemark",
       latitude: 59.45,
@@ -75,6 +94,7 @@ async function main() {
   const colonies = [
     // Dungen - 3 samhällen
     {
+      userId,
       bigardId: dungen.id,
       namn: "Dungen 1",
       platsNummer: 1,
@@ -87,6 +107,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: dungen.id,
       namn: "Dungen 2",
       platsNummer: 2,
@@ -99,6 +120,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: dungen.id,
       namn: "Dungen 3",
       platsNummer: 3,
@@ -111,6 +133,7 @@ async function main() {
 
     // Krattorp Eken - 5 samhällen
     {
+      userId,
       bigardId: krattorpEken.id,
       namn: "Krattorp 1",
       platsNummer: 1,
@@ -121,6 +144,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: krattorpEken.id,
       namn: "Krattorp 2",
       platsNummer: 2,
@@ -133,6 +157,7 @@ async function main() {
       anteckningar: "Mycket produktivt samhälle.",
     },
     {
+      userId,
       bigardId: krattorpEken.id,
       namn: "Krattorp 3",
       platsNummer: 3,
@@ -142,6 +167,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: krattorpEken.id,
       namn: "Krattorp 4",
       platsNummer: 4,
@@ -151,6 +177,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: krattorpEken.id,
       namn: "Krattorp 5",
       platsNummer: 5,
@@ -163,6 +190,7 @@ async function main() {
 
     // Kroken - 4 samhällen
     {
+      userId,
       bigardId: kroken.id,
       namn: "Kroken 1",
       platsNummer: 1,
@@ -172,6 +200,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: kroken.id,
       namn: "Kroken 2",
       platsNummer: 2,
@@ -181,6 +210,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: kroken.id,
       namn: "Kroken 3",
       platsNummer: 3,
@@ -190,6 +220,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: kroken.id,
       namn: "Kroken 4",
       platsNummer: 4,
@@ -202,6 +233,7 @@ async function main() {
 
     // Mjölkladan - 3 samhällen
     {
+      userId,
       bigardId: mjolkladan.id,
       namn: "Mjölkladan 1",
       platsNummer: 1,
@@ -211,6 +243,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: mjolkladan.id,
       namn: "Mjölkladan 2",
       platsNummer: 2,
@@ -220,6 +253,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: mjolkladan.id,
       namn: "Mjölkladan 3",
       platsNummer: 3,
@@ -232,6 +266,7 @@ async function main() {
 
     // Ödeby - 2 samhällen
     {
+      userId,
       bigardId: odeby.id,
       namn: "Ödeby 1",
       platsNummer: 1,
@@ -241,6 +276,7 @@ async function main() {
       status: "Aktiv",
     },
     {
+      userId,
       bigardId: odeby.id,
       namn: "Ödeby 2",
       platsNummer: 2,
@@ -266,6 +302,7 @@ async function main() {
   const eventData = [
     // Events for Krattorp 1
     {
+      userId,
       samhalleId: createdColonies[3].id,
       handelseTyp: "Inspektion",
       datum: new Date("2024-05-15"),
@@ -278,6 +315,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[3].id,
       handelseTyp: "Skörd",
       datum: new Date("2024-07-10"),
@@ -288,6 +326,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[3].id,
       handelseTyp: "Hälsoåtgärd",
       datum: new Date("2024-08-01"),
@@ -298,6 +337,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[3].id,
       handelseTyp: "Invintring",
       datum: new Date("2024-09-20"),
@@ -311,6 +351,7 @@ async function main() {
 
     // Events for Krattorp 2
     {
+      userId,
       samhalleId: createdColonies[4].id,
       handelseTyp: "Inspektion",
       datum: new Date("2024-04-20"),
@@ -322,6 +363,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[4].id,
       handelseTyp: "Avläggare",
       datum: new Date("2024-05-25"),
@@ -331,6 +373,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[4].id,
       handelseTyp: "Skörd",
       datum: new Date("2024-07-12"),
@@ -341,6 +384,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[4].id,
       handelseTyp: "Skörd",
       datum: new Date("2024-08-15"),
@@ -353,6 +397,7 @@ async function main() {
 
     // Events for Dungen 1
     {
+      userId,
       samhalleId: createdColonies[0].id,
       handelseTyp: "Inspektion",
       datum: new Date("2024-06-01"),
@@ -365,6 +410,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[0].id,
       handelseTyp: "Skörd",
       datum: new Date("2024-07-20"),
@@ -374,6 +420,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[0].id,
       handelseTyp: "Hälsoåtgärd",
       datum: new Date("2024-12-15"),
@@ -386,6 +433,7 @@ async function main() {
 
     // Events for Kroken 1
     {
+      userId,
       samhalleId: createdColonies[8].id,
       handelseTyp: "Anteckning",
       datum: new Date("2024-04-01"),
@@ -394,6 +442,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[8].id,
       handelseTyp: "Inspektion",
       datum: new Date("2024-05-10"),
@@ -405,6 +454,7 @@ async function main() {
       }),
     },
     {
+      userId,
       samhalleId: createdColonies[8].id,
       handelseTyp: "Skörd",
       datum: new Date("2024-07-05"),
@@ -423,12 +473,12 @@ async function main() {
 
   console.log(`Created ${eventData.length} events`);
 
-  // Create default settings
+  // Create default settings for user
   await prisma.settings.upsert({
-    where: { id: "default" },
+    where: { userId },
     update: {},
     create: {
-      id: "default",
+      userId,
       foretagsnamn: "Min Biodling",
       organisationsnummer: "123456-7890",
       adress: "Bigårdsvägen 1",
