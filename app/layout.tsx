@@ -14,6 +14,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "BiManager - Biodlingshantering",
   description: "Professionell hantering av biodling, bigårdar och bisamhällen",
+  icons: {
+    icon: "/bee-icon.svg",
+    apple: "/bee-icon.svg",
+  },
 };
 
 export default function RootLayout({
