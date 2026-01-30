@@ -7,21 +7,22 @@
 ## Innehåll
 
 1. [Vad är BiManager?](#1-vad-är-bimanager)
-2. [Så här kommer du igång](#2-så-här-kommer-du-igång)
-3. [Startsidan (Dashboard)](#3-startsidan-dashboard)
-4. [Menyn - så hittar du runt](#4-menyn---så-hittar-du-runt)
-5. [Bigårdar - lägg till dina bigårdar](#5-bigårdar---lägg-till-dina-bigårdar)
-6. [Samhällen - registrera dina bisamhällen](#6-samhällen---registrera-dina-bisamhällen)
-7. [Händelser - notera vad du gör med bina](#7-händelser---notera-vad-du-gör-med-bina)
-8. [Påminnelser - glöm inte viktiga saker](#8-påminnelser---glöm-inte-viktiga-saker)
-9. [Kunder - håll koll på dina kunder](#9-kunder---håll-koll-på-dina-kunder)
-10. [Fakturering - skapa fakturor](#10-fakturering---skapa-fakturor)
-11. [Betalning - ta emot betalning](#11-betalning---ta-emot-betalning)
-12. [Kassabok - din enkla bokföring](#12-kassabok---din-enkla-bokföring)
-13. [Statistik - se hur det går](#13-statistik---se-hur-det-går)
-14. [Inställningar - företagsuppgifter](#14-inställningar---företagsuppgifter)
-15. [Mörkt och ljust läge](#15-mörkt-och-ljust-läge)
-16. [Vanliga frågor](#16-vanliga-frågor)
+2. [Skapa konto och logga in](#2-skapa-konto-och-logga-in)
+3. [Så här kommer du igång](#3-så-här-kommer-du-igång)
+4. [Startsidan (Dashboard)](#4-startsidan-dashboard)
+5. [Menyn - så hittar du runt](#5-menyn---så-hittar-du-runt)
+6. [Bigårdar - lägg till dina bigårdar](#6-bigårdar---lägg-till-dina-bigårdar)
+7. [Samhällen - registrera dina bisamhällen](#7-samhällen---registrera-dina-bisamhällen)
+8. [Händelser - notera vad du gör med bina](#8-händelser---notera-vad-du-gör-med-bina)
+9. [Påminnelser - glöm inte viktiga saker](#9-påminnelser---glöm-inte-viktiga-saker)
+10. [Kunder - håll koll på dina kunder](#10-kunder---håll-koll-på-dina-kunder)
+11. [Fakturering - skapa fakturor](#11-fakturering---skapa-fakturor)
+12. [Betalning - ta emot betalning](#12-betalning---ta-emot-betalning)
+13. [Kassabok - din enkla bokföring](#13-kassabok---din-enkla-bokföring)
+14. [Statistik - se hur det går](#14-statistik---se-hur-det-går)
+15. [Inställningar - företagsuppgifter](#15-inställningar---företagsuppgifter)
+16. [Mörkt och ljust läge](#16-mörkt-och-ljust-läge)
+17. [Vanliga frågor](#17-vanliga-frågor)
 
 ---
 
@@ -31,8 +32,10 @@ BiManager är ett verktyg på internet som hjälper dig att hålla ordning på d
 
 **Du behöver INTE:**
 - Installera något program
-- Skapa något konto
 - Ha någon datorvana utöver att kunna surfa på internet
+
+**Du behöver:**
+- Skapa ett gratis konto (enkelt, tar bara en minut)
 
 **Med BiManager kan du:**
 - Hålla reda på var dina bigårdar finns
@@ -45,16 +48,47 @@ BiManager är ett verktyg på internet som hjälper dig att hålla ordning på d
 
 ---
 
-## 2. Så här kommer du igång
+## 2. Skapa konto och logga in
 
-### Steg 1: Öppna BiManager
+BiManager kräver att du skapar ett konto. Detta gör att dina uppgifter är privata och att bara du kan se dem.
 
-1. Öppna din webbläsare (det program du brukar använda för att surfa, till exempel Chrome, Safari eller Edge)
-2. Skriv in webbadressen i adressfältet högst upp i webbläsaren (du får adressen av Claes)
-3. Tryck på Enter-tangenten (den stora tangenten till höger på tangentbordet)
-4. Nu bör du se BiManagers startsida
+### Webbadress
 
-### Steg 2: Fyll i dina företagsuppgifter (gör detta först)
+BiManager finns på: **https://bimanager-app.vercel.app**
+
+### Första gången - skapa ett konto:
+
+1. Gå till **https://bimanager-app.vercel.app**
+2. Du kommer automatiskt till inloggningssidan
+3. Klicka på länken **"Registrera dig"** längst ner
+4. Fyll i:
+   - **Namn** - ditt namn
+   - **E-post** - din e-postadress (detta blir ditt användarnamn)
+   - **Lösenord** - välj ett lösenord (minst 6 tecken)
+   - **Bekräfta lösenord** - skriv samma lösenord igen
+5. Klicka på knappen **"Skapa konto"**
+6. Du loggas in automatiskt och kommer till startsidan
+
+### Logga in (när du redan har ett konto):
+
+1. Gå till **https://bimanager-app.vercel.app**
+2. Fyll i din **e-post** och ditt **lösenord**
+3. Klicka på knappen **"Logga in"**
+
+### Logga ut:
+
+1. Klicka på din profilikon uppe till höger (eller i menyn)
+2. Klicka på **"Logga ut"**
+
+### Glömt lösenordet?
+
+Kontakta Claes så hjälper han dig att återställa det.
+
+---
+
+## 3. Så här kommer du igång
+
+### Steg 1: Fyll i dina företagsuppgifter (gör detta först)
 
 Innan du börjar använda BiManager bör du fylla i dina uppgifter:
 
@@ -62,7 +96,7 @@ Innan du börjar använda BiManager bör du fylla i dina uppgifter:
 2. Fyll i ditt företagsnamn, adress, telefon och övrigt
 3. Klicka på knappen **"Spara inställningar"** längst ner
 
-### Steg 3: Börja använda systemet
+### Steg 2: Börja använda systemet
 
 Den bästa ordningen att börja i är:
 
@@ -72,7 +106,7 @@ Den bästa ordningen att börja i är:
 
 ---
 
-## 3. Startsidan (Dashboard)
+## 4. Startsidan (Dashboard)
 
 När du öppnar BiManager ser du startsidan. Här får du en snabb överblick:
 
@@ -94,7 +128,7 @@ Du kan klicka på vilken ruta som helst för att komma till den sidan.
 
 ---
 
-## 4. Menyn - så hittar du runt
+## 5. Menyn - så hittar du runt
 
 ### På en dator (stor skärm):
 Menyn syns hela tiden till vänster på skärmen. Den ser ut som en lista med namn och små bilder (ikoner). Klicka på det du vill gå till.
@@ -123,7 +157,7 @@ Menyn är gömd. För att öppna den:
 
 ---
 
-## 5. Bigårdar - lägg till dina bigårdar
+## 6. Bigårdar - lägg till dina bigårdar
 
 En bigård är den plats där dina kupor (bisamhällen) står. Det första du bör göra är att lägga till dina bigårdar.
 
@@ -155,7 +189,7 @@ En bigård är den plats där dina kupor (bisamhällen) står. Det första du b�
 
 ---
 
-## 6. Samhällen - registrera dina bisamhällen
+## 7. Samhällen - registrera dina bisamhällen
 
 Ett samhälle är en bikupa med bin. Varje samhälle hör till en bigård.
 
@@ -201,7 +235,7 @@ Ett samhälle är en bikupa med bin. Varje samhälle hör till en bigård.
 
 ---
 
-## 7. Händelser - notera vad du gör med bina
+## 8. Händelser - notera vad du gör med bina
 
 Händelser är allt du gör med dina bisamhällen: inspektioner, skördar, behandlingar med mera. Genom att skriva ner händelser får du en loggbok över din biodling.
 
@@ -231,7 +265,7 @@ Händelser är allt du gör med dina bisamhällen: inspektioner, skördar, behan
 
 ---
 
-## 8. Påminnelser - glöm inte viktiga saker
+## 9. Påminnelser - glöm inte viktiga saker
 
 Påminnelser hjälper dig att komma ihåg saker du behöver göra, till exempel varroabehandling, inspektion eller utfodring.
 
@@ -271,7 +305,7 @@ Påminnelser hjälper dig att komma ihåg saker du behöver göra, till exempel 
 
 ---
 
-## 9. Kunder - håll koll på dina kunder
+## 10. Kunder - håll koll på dina kunder
 
 Om du säljer honung eller andra biprodukter kan du spara information om dina kunder här.
 
@@ -311,7 +345,7 @@ Om du säljer honung eller andra biprodukter kan du spara information om dina ku
 
 ---
 
-## 10. Fakturering - skapa fakturor
+## 11. Fakturering - skapa fakturor
 
 Om du säljer honung till företag eller privatpersoner kan du skapa snygga fakturor direkt i BiManager.
 
@@ -348,7 +382,7 @@ Varje faktura får automatiskt ett nummer, till exempel F26001 (F för faktura, 
 
 ---
 
-## 11. Betalning - ta emot betalning
+## 12. Betalning - ta emot betalning
 
 Under **"Betalning"** i menyn kan du registrera betalningar.
 
@@ -368,7 +402,7 @@ Under **"Betalning"** i menyn kan du registrera betalningar.
 
 ---
 
-## 12. Kassabok - din enkla bokföring
+## 13. Kassabok - din enkla bokföring
 
 Kassaboken hjälper dig att hålla koll på inkomster och utgifter i din biodling.
 
@@ -407,7 +441,7 @@ Kassaboken hjälper dig att hålla koll på inkomster och utgifter i din biodlin
 
 ---
 
-## 13. Statistik - se hur det går
+## 14. Statistik - se hur det går
 
 Statistiksidan ger dig en överblick av din biodling med siffror och diagram.
 
@@ -435,7 +469,7 @@ Statistiksidan ger dig en överblick av din biodling med siffror och diagram.
 
 ---
 
-## 14. Inställningar - företagsuppgifter
+## 15. Inställningar - företagsuppgifter
 
 Här fyller du i information om dig och ditt företag. Denna information används bland annat på fakturor och kvitton.
 
@@ -456,7 +490,7 @@ Här fyller du i information om dig och ditt företag. Denna information använd
 
 ---
 
-## 15. Mörkt och ljust läge
+## 16. Mörkt och ljust läge
 
 BiManager kan visas med ljus eller mörk bakgrund. Det mörka läget är skonsammare för ögonen om du sitter i mörker.
 
@@ -469,7 +503,7 @@ BiManager kan visas med ljus eller mörk bakgrund. Det mörka läget är skonsam
 
 ---
 
-## 16. Vanliga frågor
+## 17. Vanliga frågor
 
 ### "Jag ser inte menyn på min mobil?"
 Menyn är gömd på mobilen. Titta uppe till vänster - där finns tre streck (hamburgarmeny). Tryck på dem så visas menyn.
@@ -487,7 +521,7 @@ Du behöver klicka på "Spara"-knappen varje gång du ändrar något. Informatio
 Ja, BiManager kräver internetuppkoppling för att fungera. All information sparas på en server på internet.
 
 ### "Kan andra se mina uppgifter?"
-Alla som har webbadressen kan se dina uppgifter. Dela därför inte adressen med någon du inte litar på.
+Nej! Varje användare har sitt eget konto och kan bara se sina egna uppgifter. Din data är privat och skyddad med lösenord.
 
 ### "Fungerar det i alla webbläsare?"
 Ja, BiManager fungerar i alla moderna webbläsare: Chrome, Safari, Edge och Firefox.
