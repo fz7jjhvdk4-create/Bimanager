@@ -41,6 +41,7 @@ export default function KontantBetalningPage() {
     beskrivning: "",
     koparensNamn: "",
     antalBurkar: "",
+    prisPerBurk: "",
     datum: new Date().toISOString().split("T")[0],
     inkluderarMoms: true,
     momsSats: "0.12",
@@ -186,6 +187,7 @@ export default function KontantBetalningPage() {
                   beskrivning: "",
                   koparensNamn: "",
                   antalBurkar: "",
+                  prisPerBurk: "",
                   datum: new Date().toISOString().split("T")[0],
                   inkluderarMoms: true,
                   momsSats: "0.12",
@@ -281,20 +283,60 @@ export default function KontantBetalningPage() {
             />
           </div>
 
-          {/* Antal burkar */}
-          <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
-              Antal burkar
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={formData.antalBurkar}
-              onChange={(e) => setFormData({ ...formData, antalBurkar: e.target.value })}
-              placeholder="0"
-              className="w-full px-3 py-2 rounded-lg border border-[var(--card-border)] bg-[var(--input-bg)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
-            />
+          {/* Antal burkar & Pris per burk */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+                Antal burkar
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={formData.antalBurkar}
+                onChange={(e) => {
+                  const antalBurkar = e.target.value;
+                  const antal = parseFloat(antalBurkar);
+                  const pris = parseFloat(formData.prisPerBurk);
+                  const nyttBelopp = antal && pris ? (Math.round(antal * pris * 100) / 100).toString() : formData.belopp;
+                  setFormData({ ...formData, antalBurkar, belopp: nyttBelopp });
+                }}
+                placeholder="0"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--card-border)] bg-[var(--input-bg)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+                Pris per burk (kr)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.prisPerBurk}
+                onChange={(e) => {
+                  const prisPerBurk = e.target.value;
+                  const antal = parseFloat(formData.antalBurkar);
+                  const pris = parseFloat(prisPerBurk);
+                  const nyttBelopp = antal && pris ? (Math.round(antal * pris * 100) / 100).toString() : formData.belopp;
+                  setFormData({ ...formData, prisPerBurk, belopp: nyttBelopp });
+                }}
+                placeholder="0.00"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--card-border)] bg-[var(--input-bg)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+              />
+            </div>
           </div>
+
+          {/* Beräknat belopp visning */}
+          {parseFloat(formData.antalBurkar) > 0 && parseFloat(formData.prisPerBurk) > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-[var(--accent)]/10 border border-[var(--accent)]/20 rounded-lg text-sm">
+              <span className="text-[var(--muted)]">
+                {formData.antalBurkar} st × {parseFloat(formData.prisPerBurk).toFixed(2)} kr =
+              </span>
+              <span className="font-semibold text-[var(--accent)]">
+                {(Math.round(parseFloat(formData.antalBurkar) * parseFloat(formData.prisPerBurk) * 100) / 100).toFixed(2)} kr
+              </span>
+            </div>
+          )}
 
           {/* Belopp */}
           <div>
