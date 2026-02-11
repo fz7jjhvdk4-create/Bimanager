@@ -66,9 +66,9 @@ export async function POST(request: Request) {
       notering,
     } = body;
 
-    // Beräkna momsbelopp och totalbelopp
-    const momsBelopp = beloppExMoms * momsSats;
-    const beloppInklMoms = beloppExMoms + momsBelopp;
+    // Beräkna momsbelopp och totalbelopp (avrunda till 2 decimaler)
+    const momsBelopp = Math.round(beloppExMoms * momsSats * 100) / 100;
+    const beloppInklMoms = Math.round((beloppExMoms + momsBelopp) * 100) / 100;
 
     const transaction = await prisma.accounting.create({
       data: {

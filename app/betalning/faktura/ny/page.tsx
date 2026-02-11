@@ -144,16 +144,14 @@ export default function NyFakturaPage() {
     }
   };
 
-  // Beräkna totaler
-  const totaltExMoms = rader.reduce(
-    (sum, rad) => sum + rad.antal * rad.prisPerEnhet,
-    0
-  );
-  const totaltMoms = rader.reduce(
-    (sum, rad) => sum + rad.antal * rad.prisPerEnhet * rad.momsSats,
-    0
-  );
-  const totaltInklMoms = totaltExMoms + totaltMoms;
+  // Beräkna totaler (avrunda till 2 decimaler)
+  const totaltExMoms = Math.round(
+    rader.reduce((sum, rad) => sum + Math.round(rad.antal * rad.prisPerEnhet * 100) / 100, 0) * 100
+  ) / 100;
+  const totaltMoms = Math.round(
+    rader.reduce((sum, rad) => sum + Math.round(rad.antal * rad.prisPerEnhet * rad.momsSats * 100) / 100, 0) * 100
+  ) / 100;
+  const totaltInklMoms = Math.round((totaltExMoms + totaltMoms) * 100) / 100;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

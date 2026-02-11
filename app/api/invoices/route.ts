@@ -147,19 +147,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // Beräkna totaler
+    // Beräkna totaler (avrunda till 2 decimaler)
     let totaltExMoms = 0;
     let totaltMoms = 0;
 
     const parsedRader = typeof rader === "string" ? JSON.parse(rader) : rader;
     for (const rad of parsedRader) {
-      const radBelopp = rad.antal * rad.prisPerEnhet;
-      const radMoms = radBelopp * (rad.momsSats || 0.12);
+      const radBelopp = Math.round(rad.antal * rad.prisPerEnhet * 100) / 100;
+      const radMoms = Math.round(radBelopp * (rad.momsSats || 0.12) * 100) / 100;
       totaltExMoms += radBelopp;
       totaltMoms += radMoms;
     }
 
-    const totaltInklMoms = totaltExMoms + totaltMoms;
+    totaltExMoms = Math.round(totaltExMoms * 100) / 100;
+    totaltMoms = Math.round(totaltMoms * 100) / 100;
+    const totaltInklMoms = Math.round((totaltExMoms + totaltMoms) * 100) / 100;
 
     // Generera fakturanummer med årtal: F26001, K26001 etc.
     const currentYear = new Date().getFullYear().toString().slice(-2); // "26" för 2026

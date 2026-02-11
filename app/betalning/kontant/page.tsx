@@ -59,14 +59,14 @@ export default function KontantBetalningPage() {
     const momsSats = parseFloat(formData.momsSats);
 
     if (formData.inkluderarMoms) {
-      // Beloppet inkluderar moms - beräkna baklänges
-      const exMoms = belopp / (1 + momsSats);
-      const moms = belopp - exMoms;
+      // Beloppet inkluderar moms - beräkna baklänges (avrunda till 2 decimaler)
+      const exMoms = Math.round((belopp / (1 + momsSats)) * 100) / 100;
+      const moms = Math.round((belopp - exMoms) * 100) / 100;
       return { exMoms, moms, totalt: belopp };
     } else {
-      // Beloppet exkluderar moms
-      const moms = belopp * momsSats;
-      const totalt = belopp + moms;
+      // Beloppet exkluderar moms (avrunda till 2 decimaler)
+      const moms = Math.round(belopp * momsSats * 100) / 100;
+      const totalt = Math.round((belopp + moms) * 100) / 100;
       return { exMoms: belopp, moms, totalt };
     }
   };

@@ -45,7 +45,7 @@ export default function NyTransaktionPage() {
         setFormData((prev) => ({
           ...prev,
           [name]: value,
-          beloppExMoms: (antal * pris).toString(),
+          beloppExMoms: (Math.round(antal * pris * 100) / 100).toString(),
         }));
       }
     }
@@ -87,8 +87,8 @@ export default function NyTransaktionPage() {
 
   const beloppExMoms = parseFloat(formData.beloppExMoms) || 0;
   const momsSats = parseFloat(formData.momsSats) || 0;
-  const momsBelopp = beloppExMoms * momsSats;
-  const beloppInklMoms = beloppExMoms + momsBelopp;
+  const momsBelopp = Math.round(beloppExMoms * momsSats * 100) / 100;
+  const beloppInklMoms = Math.round((beloppExMoms + momsBelopp) * 100) / 100;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
