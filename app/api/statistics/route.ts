@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 
+const MONTHS = [
+  "jan.", "feb.", "mar.", "apr.", "maj", "jun.",
+  "jul.", "aug.", "sep.", "okt.", "nov.", "dec.",
+];
+
+function getMonthKey(date: Date): string {
+  return MONTHS[new Date(date).getMonth()];
+}
+
 export async function GET(request: Request) {
   try {
     const userId = await getCurrentUserId();
@@ -102,9 +111,7 @@ export async function GET(request: Request) {
           totalHarvest += amount;
 
           // Per månad
-          const month = new Date(event.datum).toLocaleDateString("sv-SE", {
-            month: "short",
-          });
+          const month = getMonthKey(event.datum);
           harvestByMonth[month] = (harvestByMonth[month] || 0) + amount;
 
           // Per bigård
@@ -133,9 +140,7 @@ export async function GET(request: Request) {
         (eventStats.byType[event.handelseTyp] || 0) + 1;
 
       // Per månad
-      const month = new Date(event.datum).toLocaleDateString("sv-SE", {
-        month: "short",
-      });
+      const month = getMonthKey(event.datum);
       eventStats.byMonth[month] = (eventStats.byMonth[month] || 0) + 1;
     });
 
@@ -150,9 +155,7 @@ export async function GET(request: Request) {
     const jarsSoldByMonth: Record<string, number> = {};
 
     transactions.forEach((t) => {
-      const month = new Date(t.datum).toLocaleDateString("sv-SE", {
-        month: "short",
-      });
+      const month = getMonthKey(t.datum);
 
       if (t.handelseTyp === "Försäljning") {
         totalIncome += t.beloppInklMoms;
