@@ -7,6 +7,11 @@ import {
   View,
   StyleSheet,
   Font,
+  Svg,
+  Path,
+  Circle,
+  Ellipse,
+  Rect,
 } from "@react-pdf/renderer";
 
 // Registrera svenska tecken-stöd
@@ -29,6 +34,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 30,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerIcon: {
+    marginRight: 12,
   },
   title: {
     fontSize: 28,
@@ -301,9 +313,47 @@ export default function InvoicePDF({ invoice, settings }: InvoicePDFProps) {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>FAKTURA</Text>
-            <Text style={styles.invoiceNumber}>{invoice.fakturaNummer}</Text>
+          <View style={styles.headerLeft}>
+            <Svg style={styles.headerIcon} width={56} height={56} viewBox="0 0 80 80">
+              {/* Vingar (bakom kroppen) */}
+              <Ellipse cx="20" cy="28" rx="9" ry="5.5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth={0.8} />
+              <Ellipse cx="50" cy="28" rx="9" ry="5.5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth={0.8} />
+              {/* Bi-kropp */}
+              <Ellipse cx="35" cy="36" rx="14" ry="13" fill="#FCD34D" />
+              {/* Ränder */}
+              <Ellipse cx="35" cy="31" rx="13" ry="2.5" fill="#1F2937" />
+              <Ellipse cx="35" cy="41" rx="11" ry="2" fill="#1F2937" />
+              {/* Huvud */}
+              <Circle cx="35" cy="16" r={9} fill="#FCD34D" />
+              {/* Antenner */}
+              <Path d="M30 8 Q27 3 24 1" stroke="#1F2937" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+              <Path d="M40 8 Q43 3 46 1" stroke="#1F2937" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+              {/* Ögon */}
+              <Circle cx="31" cy="15" r={2.5} fill="#1F2937" />
+              <Circle cx="39" cy="15" r={2.5} fill="#1F2937" />
+              <Circle cx="30.3" cy="14.2" r={0.8} fill="#FFFFFF" />
+              <Circle cx="38.3" cy="14.2" r={0.8} fill="#FFFFFF" />
+              {/* Leende */}
+              <Path d="M31 19 Q35 22 39 19" stroke="#1F2937" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              {/* Armar runt burken */}
+              <Path d="M23 41 Q24 51 31 53" stroke="#1F2937" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+              <Path d="M47 41 Q46 51 39 53" stroke="#1F2937" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+              {/* Honungsburk - lock */}
+              <Rect x="28" y="44" width="14" height="3.5" rx={0.8} fill="#78350F" />
+              {/* Honungsburk - kropp */}
+              <Rect x="29" y="47.5" width="12" height="13" rx={1.5} fill="#F59E0B" />
+              {/* Honungsburk - inre/honung */}
+              <Rect x="30" y="48.5" width="10" height="11" rx={1} fill="#FBBF24" />
+              {/* Etikett */}
+              <Rect x="30" y="52" width="10" height="4" fill="#FFFFFF" />
+              {/* Litet bi på etiketten */}
+              <Ellipse cx="35" cy="54" rx={1.6} ry={1.2} fill="#FCD34D" />
+              <Path d="M33.5 54 L36.5 54" stroke="#1F2937" strokeWidth={0.4} />
+            </Svg>
+            <View>
+              <Text style={styles.title}>FAKTURA</Text>
+              <Text style={styles.invoiceNumber}>{invoice.fakturaNummer}</Text>
+            </View>
           </View>
           <View>
             <Text style={styles.companyName}>{companyName}</Text>
