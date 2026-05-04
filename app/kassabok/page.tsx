@@ -112,6 +112,9 @@ export default function KassabokPage() {
       "Notering",
     ];
 
+    // Formatera belopp med komma som decimaltecken (svensk konvention)
+    const formatBelopp = (n: number) => n.toFixed(2).replace(".", ",");
+
     // Formatera data
     const rows = transactions.map((t) => [
       new Date(t.datum).toLocaleDateString("sv-SE"),
@@ -119,11 +122,11 @@ export default function KassabokPage() {
       t.beskrivning,
       t.mottagare || "",
       t.antalBurkar?.toString() || "",
-      t.prisPerEnhet?.toFixed(2) || "",
-      t.beloppExMoms.toFixed(2),
+      t.prisPerEnhet != null ? formatBelopp(t.prisPerEnhet) : "",
+      formatBelopp(t.beloppExMoms),
       (t.momsSats * 100).toFixed(0) + "%",
-      t.momsBelopp.toFixed(2),
-      t.beloppInklMoms.toFixed(2),
+      formatBelopp(t.momsBelopp),
+      formatBelopp(t.beloppInklMoms),
       t.fakturaNummer || "",
       t.notering || "",
     ]);
@@ -136,10 +139,10 @@ export default function KassabokPage() {
         .map((row) =>
           row
             .map((cell) => {
-              // Escapa celler som innehåller komma, citattecken eller radbrytningar
+              // Escapa celler som innehåller fältseparator, citattecken eller radbrytningar
               const cellStr = String(cell);
               if (
-                cellStr.includes(",") ||
+                cellStr.includes(";") ||
                 cellStr.includes('"') ||
                 cellStr.includes("\n")
               ) {

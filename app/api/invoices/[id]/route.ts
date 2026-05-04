@@ -80,21 +80,21 @@ export async function PUT(
 
       const parsedRader = typeof rader === "string" ? JSON.parse(rader) : rader;
       for (const rad of parsedRader) {
-        const radBelopp = Math.round(rad.antal * rad.prisPerEnhet * 100) / 100;
-        const radMoms = Math.round(radBelopp * (rad.momsSats || 0.12) * 100) / 100;
+        const radBelopp = Math.round(rad.antal * rad.prisPerEnhet);
+        const radMoms = Math.round(radBelopp * (rad.momsSats || 0.12));
         totaltExMoms += radBelopp;
         totaltMoms += radMoms;
       }
 
-      totaltExMoms = Math.round(totaltExMoms * 100) / 100;
-      totaltMoms = Math.round(totaltMoms * 100) / 100;
+      totaltExMoms = Math.round(totaltExMoms);
+      totaltMoms = Math.round(totaltMoms);
 
       updateData = {
         ...updateData,
         rader: JSON.stringify(parsedRader),
         totaltExMoms,
         totaltMoms,
-        totaltInklMoms: Math.round((totaltExMoms + totaltMoms) * 100) / 100,
+        totaltInklMoms: Math.round(totaltExMoms + totaltMoms),
       };
     }
 

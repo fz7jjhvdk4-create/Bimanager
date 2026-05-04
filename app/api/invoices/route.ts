@@ -34,7 +34,7 @@ async function sendReceiptEmail(invoice: InvoiceWithCustomer, rader: InvoiceLine
 
   // Bygg e-postinnehåll
   const raaderText = rader.map(r =>
-    `${r.beskrivning}: ${r.antal} ${r.enhet} x ${r.prisPerEnhet} kr = ${(r.antal * r.prisPerEnhet).toFixed(2)} kr`
+    `${r.beskrivning}: ${r.antal} ${r.enhet} x ${r.prisPerEnhet} kr = ${(r.antal * r.prisPerEnhet).toFixed(0)} kr`
   ).join("\n");
 
   const emailBody = `Hej ${invoice.kund.namn}!
@@ -46,9 +46,9 @@ Datum: ${new Date(invoice.fakturaDatum).toLocaleDateString("sv-SE")}
 
 ${raaderText}
 
-Summa ex moms: ${invoice.totaltExMoms.toFixed(2)} kr
-Moms: ${invoice.totaltMoms.toFixed(2)} kr
-Totalt: ${invoice.totaltInklMoms.toFixed(2)} kr
+Summa ex moms: ${invoice.totaltExMoms.toFixed(0)} kr
+Moms: ${invoice.totaltMoms.toFixed(0)} kr
+Totalt: ${invoice.totaltInklMoms.toFixed(0)} kr
 
 Med vänliga hälsningar,
 ${settings?.foretagsnamn || "BiManager"}
@@ -147,21 +147,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // Beräkna totaler (avrunda till 2 decimaler)
+    // Beräkna totaler (avrunda till hela kronor)
     let totaltExMoms = 0;
     let totaltMoms = 0;
 
     const parsedRader = typeof rader === "string" ? JSON.parse(rader) : rader;
     for (const rad of parsedRader) {
-      const radBelopp = Math.round(rad.antal * rad.prisPerEnhet * 100) / 100;
-      const radMoms = Math.round(radBelopp * (rad.momsSats || 0.12) * 100) / 100;
+      const radBelopp = Math.round(rad.antal * rad.prisPerEnhet);
+      const radMoms = Math.round(radBelopp * (rad.momsSats || 0.12));
       totaltExMoms += radBelopp;
       totaltMoms += radMoms;
     }
 
-    totaltExMoms = Math.round(totaltExMoms * 100) / 100;
-    totaltMoms = Math.round(totaltMoms * 100) / 100;
-    const totaltInklMoms = Math.round((totaltExMoms + totaltMoms) * 100) / 100;
+    totaltExMoms = Math.round(totaltExMoms);
+    totaltMoms = Math.round(totaltMoms);
+    const totaltInklMoms = Math.round(totaltExMoms + totaltMoms);
 
     // Generera fakturanummer med årtal: F26001, K26001 etc.
     const currentYear = new Date().getFullYear().toString().slice(-2); // "26" för 2026
