@@ -45,3 +45,10 @@ next-env.d.ts
 
 # database
 *.db
+.env*.local
+
+# lokala arbetsfiler som inte hör hemma i repot
+*.docx
+files.zip
+/data/
+bimanager-package.json

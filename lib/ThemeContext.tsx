@@ -23,6 +23,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // localStorage finns inte vid SSR, så temat måste läsas efter mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     // Check for saved theme or system preference
     const savedTheme = localStorage.getItem("bimanager-theme") as Theme | null;

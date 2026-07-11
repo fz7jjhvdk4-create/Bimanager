@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 interface ApiaryMapProps {
@@ -30,19 +29,5 @@ const MapComponent = dynamic(
 );
 
 export default function ApiaryMap(props: ApiaryMapProps) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return (
-      <div className="w-full h-full bg-amber-50 flex items-center justify-center rounded-lg">
-        <div className="text-amber-600">Laddar karta...</div>
-      </div>
-    );
-  }
-
   return <MapComponent {...props} />;
 }
