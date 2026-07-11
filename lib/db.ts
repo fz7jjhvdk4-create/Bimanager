@@ -24,7 +24,7 @@ function cleanConnectionString(url: string | undefined): string | undefined {
 function createPrismaClient() {
   const pool = new Pool({
     connectionString: cleanConnectionString(process.env.DATABASE_URL),
-    ssl: { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: true },
   });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
