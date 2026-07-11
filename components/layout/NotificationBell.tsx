@@ -20,13 +20,6 @@ export default function NotificationBell() {
   const [showPanel, setShowPanel] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReminders();
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchReminders, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   async function fetchReminders() {
     try {
       const response = await fetch("/api/reminders?upcoming=true");
@@ -40,6 +33,13 @@ export default function NotificationBell() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchReminders();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchReminders, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   async function markComplete(id: string) {
     try {

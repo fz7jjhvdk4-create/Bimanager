@@ -28,10 +28,6 @@ export default function RedigeraKundPage({
     organisationsnummer: "",
   });
 
-  useEffect(() => {
-    fetchCustomer();
-  }, [id]);
-
   async function fetchCustomer() {
     try {
       const res = await fetch(`/api/customers/${id}`);
@@ -53,6 +49,10 @@ export default function RedigeraKundPage({
       setFetching(false);
     }
   }
+
+  useEffect(() => {
+    fetchCustomer();
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

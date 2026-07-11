@@ -47,10 +47,6 @@ export default function InstallningarPage() {
     nastaFakturaNummer: 1,
   });
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
   async function fetchSettings() {
     try {
       const res = await fetch("/api/settings");
@@ -75,6 +71,10 @@ export default function InstallningarPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

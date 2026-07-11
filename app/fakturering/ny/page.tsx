@@ -28,13 +28,13 @@ export default function NyFakturaPage() {
   const [error, setError] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     kundId: "",
     fakturaDatum: new Date().toISOString().split("T")[0],
     forfallDatum: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       .toISOString()
       .split("T")[0],
-  });
+  }));
 
   const [rader, setRader] = useState<InvoiceLine[]>([
     {
@@ -49,10 +49,6 @@ export default function NyFakturaPage() {
   const [betalningsTyp, setBetalningsTyp] = useState<"faktura" | "kvitto">("faktura");
   const [skickaKvittoMail, setSkickaKvittoMail] = useState(false);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
   async function fetchCustomers() {
     try {
       const res = await fetch("/api/customers");
@@ -62,6 +58,10 @@ export default function NyFakturaPage() {
       console.error("Error fetching customers:", error);
     }
   }
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

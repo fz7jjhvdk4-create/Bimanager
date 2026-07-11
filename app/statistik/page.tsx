@@ -84,10 +84,6 @@ export default function StatistikPage() {
     new Date().getFullYear().toString()
   );
 
-  useEffect(() => {
-    fetchStatistics();
-  }, [selectedYear]);
-
   async function fetchStatistics() {
     setLoading(true);
     try {
@@ -100,6 +96,10 @@ export default function StatistikPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchStatistics();
+  }, [selectedYear]);
 
   function exportReport() {
     if (!stats) return;

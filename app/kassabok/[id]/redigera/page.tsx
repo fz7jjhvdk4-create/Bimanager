@@ -33,10 +33,6 @@ export default function RedigeraTransaktionPage({
     notering: "",
   });
 
-  useEffect(() => {
-    fetchTransaction();
-  }, [id]);
-
   async function fetchTransaction() {
     try {
       const res = await fetch(`/api/accounting/${id}`);
@@ -61,6 +57,10 @@ export default function RedigeraTransaktionPage({
       setFetching(false);
     }
   }
+
+  useEffect(() => {
+    fetchTransaction();
+  }, [id]);
 
   const handleChange = (
     e: React.ChangeEvent<

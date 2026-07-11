@@ -77,10 +77,6 @@ export default function FakturaDetailPage({
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
-
   async function fetchData() {
     try {
       const [invoiceRes, settingsRes] = await Promise.all([
@@ -103,6 +99,10 @@ export default function FakturaDetailPage({
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
   async function fetchInvoice() {
     try {
