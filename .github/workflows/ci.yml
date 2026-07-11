@@ -16,8 +16,11 @@ jobs:
           node-version: 20
           cache: npm
 
+      # npm install istället för npm ci: lockfiler genererade på macOS
+      # saknar nästlade beroenden för wasm32-wasi-paketen (känd npm-bugg),
+      # vilket får npm ci att faila på Linux.
       - name: Installera beroenden
-        run: npm ci
+        run: npm install
 
       - name: Lint
         run: npm run lint
