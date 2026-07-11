@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { invoiceLinesSchema, calculateInvoiceTotals } from "@/lib/invoice";
 
 // GET - Hämta en faktura
 export async function GET(
@@ -75,26 +76,27 @@ export async function PUT(
     }
 
     if (rader) {
-      let totaltExMoms = 0;
-      let totaltMoms = 0;
+      const raderResult = invoiceLinesSchema.safeParse(
+        typeof rader === "string" ? JSON.parse(rader) : rader
+      );
 
-      const parsedRader = typeof rader === "string" ? JSON.parse(rader) : rader;
-      for (const rad of parsedRader) {
-        const radBelopp = Math.round(rad.antal * rad.prisPerEnhet);
-        const radMoms = Math.round(radBelopp * (rad.momsSats || 0.12));
-        totaltExMoms += radBelopp;
-        totaltMoms += radMoms;
+      if (!raderResult.success) {
+        return NextResponse.json(
+          { error: "Ogiltiga produktrader", details: raderResult.error.flatten() },
+          { status: 400 }
+        );
       }
 
-      totaltExMoms = Math.round(totaltExMoms);
-      totaltMoms = Math.round(totaltMoms);
+      const parsedRader = raderResult.data;
+      const { totaltExMoms, totaltMoms, totaltInklMoms } =
+        calculateInvoiceTotals(parsedRader);
 
       updateData = {
         ...updateData,
         rader: JSON.stringify(parsedRader),
         totaltExMoms,
         totaltMoms,
-        totaltInklMoms: Math.round(totaltExMoms + totaltMoms),
+        totaltInklMoms,
       };
     }
 

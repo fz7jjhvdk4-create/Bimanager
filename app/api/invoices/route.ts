@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import prisma from "@/lib/db";
 import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
-
-interface InvoiceLine {
-  beskrivning: string;
-  antal: number;
-  enhet: string;
-  prisPerEnhet: number;
-  momsSats: number;
-}
+import {
+  invoiceLinesSchema,
+  calculateInvoiceTotals,
+  nextSequenceNumber,
+  formatSequenceNumber,
+  yearPrefix,
+  type InvoiceLine,
+} from "@/lib/invoice";
 
 interface InvoiceWithCustomer {
   id: string;
@@ -23,19 +24,41 @@ interface InvoiceWithCustomer {
   };
 }
 
-// Funktion för att skicka kvitto via e-post med Mail.app
-async function sendReceiptEmail(invoice: InvoiceWithCustomer, rader: InvoiceLine[], userId: string) {
-  const settings = await prisma.settings.findFirst({
-    where: { userId },
-  });
-  const { exec } = await import("child_process");
-  const { promisify } = await import("util");
-  const execAsync = promisify(exec);
+const createInvoiceSchema = z.object({
+  kundId: z.string().min(1),
+  fakturaDatum: z.coerce.date(),
+  forfallDatum: z.coerce.date(),
+  rader: z.union([z.string(), z.array(z.unknown())]),
+  typ: z.enum(["faktura", "kvitto"]).default("faktura"),
+  skickaKvittoMail: z.boolean().default(false),
+  status: z.enum(["Utkast", "Skickad", "Betald"]).default("Utkast"),
+});
 
-  // Bygg e-postinnehåll
-  const raaderText = rader.map(r =>
-    `${r.beskrivning}: ${r.antal} ${r.enhet} x ${r.prisPerEnhet} kr = ${(r.antal * r.prisPerEnhet).toFixed(0)} kr`
-  ).join("\n");
+// Skickar kvitto via e-post med Resend (https://resend.com).
+// Kräver RESEND_API_KEY i miljövariablerna; annars hoppas utskicket över.
+async function sendReceiptEmail(
+  invoice: InvoiceWithCustomer,
+  rader: InvoiceLine[],
+  userId: string
+) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn(
+      "RESEND_API_KEY saknas – kvittomejl skickas inte. Skapa en nyckel på resend.com."
+    );
+    return false;
+  }
+
+  const settings = await prisma.settings.findFirst({ where: { userId } });
+
+  const raderText = rader
+    .map(
+      (r) =>
+        `${r.beskrivning}: ${r.antal} ${r.enhet} x ${r.prisPerEnhet} kr = ${Math.round(
+          r.antal * r.prisPerEnhet
+        )} kr`
+    )
+    .join("\n");
 
   const emailBody = `Hej ${invoice.kund.namn}!
 
@@ -44,7 +67,7 @@ Tack för ditt köp! Här är ditt kvitto:
 Kvittonummer: ${invoice.fakturaNummer}
 Datum: ${new Date(invoice.fakturaDatum).toLocaleDateString("sv-SE")}
 
-${raaderText}
+${raderText}
 
 Summa ex moms: ${invoice.totaltExMoms.toFixed(0)} kr
 Moms: ${invoice.totaltMoms.toFixed(0)} kr
@@ -55,28 +78,32 @@ ${settings?.foretagsnamn || "BiManager"}
 ${settings?.epost || ""}
 ${settings?.telefon ? `Tel: ${settings.telefon}` : ""}`;
 
-  const subject = `Kvitto ${invoice.fakturaNummer} - ${settings?.foretagsnamn || "BiManager"}`;
-  const recipient = invoice.kund.epost;
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from:
+        process.env.EMAIL_FROM ||
+        `${settings?.foretagsnamn || "BiManager"} <onboarding@resend.dev>`,
+      to: [invoice.kund.epost],
+      reply_to: settings?.epost || undefined,
+      subject: `Kvitto ${invoice.fakturaNummer} - ${settings?.foretagsnamn || "BiManager"}`,
+      text: emailBody,
+    }),
+  });
 
-  // Använd AppleScript för att skicka via Mail.app
-  const appleScript = `
-    tell application "Mail"
-      set newMessage to make new outgoing message with properties {subject:"${subject.replace(/"/g, '\\"')}", content:"${emailBody.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"}
-      tell newMessage
-        make new to recipient at end of to recipients with properties {address:"${recipient}"}
-        send
-      end tell
-    end tell
-  `;
-
-  try {
-    await execAsync(`osascript -e '${appleScript.replace(/'/g, "'\\''")}'`);
-    console.log(`Kvitto ${invoice.fakturaNummer} skickat till ${recipient}`);
-    return true;
-  } catch (error) {
-    console.error("Kunde inte skicka e-post via Mail.app:", error);
-    throw error;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Resend svarade ${response.status}: ${errorText}`);
   }
+
+  console.log(
+    `Kvitto ${invoice.fakturaNummer} skickat till ${invoice.kund.epost}`
+  );
+  return true;
 }
 
 // GET - Hämta alla fakturor för current user
@@ -124,16 +151,24 @@ export async function POST(request: Request) {
     if (!userId) return unauthorizedResponse();
 
     const body = await request.json();
+    const parsedBody = createInvoiceSchema.safeParse(body);
+
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        { error: "Ogiltiga fakturauppgifter", details: parsedBody.error.flatten() },
+        { status: 400 }
+      );
+    }
 
     const {
       kundId,
       fakturaDatum,
       forfallDatum,
       rader,
-      typ = "faktura",
-      skickaKvittoMail = false,
-      status = "Utkast",
-    } = body;
+      typ,
+      skickaKvittoMail,
+      status,
+    } = parsedBody.data;
 
     // Verify customer belongs to user
     const customer = await prisma.customer.findFirst({
@@ -147,68 +182,80 @@ export async function POST(request: Request) {
       );
     }
 
-    // Beräkna totaler (avrunda till hela kronor)
-    let totaltExMoms = 0;
-    let totaltMoms = 0;
+    // Validera produktraderna
+    const raderResult = invoiceLinesSchema.safeParse(
+      typeof rader === "string" ? JSON.parse(rader) : rader
+    );
 
-    const parsedRader = typeof rader === "string" ? JSON.parse(rader) : rader;
-    for (const rad of parsedRader) {
-      const radBelopp = Math.round(rad.antal * rad.prisPerEnhet);
-      const radMoms = Math.round(radBelopp * (rad.momsSats || 0.12));
-      totaltExMoms += radBelopp;
-      totaltMoms += radMoms;
+    if (!raderResult.success) {
+      return NextResponse.json(
+        { error: "Ogiltiga produktrader", details: raderResult.error.flatten() },
+        { status: 400 }
+      );
     }
 
-    totaltExMoms = Math.round(totaltExMoms);
-    totaltMoms = Math.round(totaltMoms);
-    const totaltInklMoms = Math.round(totaltExMoms + totaltMoms);
+    const parsedRader = raderResult.data;
+    const { totaltExMoms, totaltMoms, totaltInklMoms } =
+      calculateInvoiceTotals(parsedRader);
 
     // Generera fakturanummer med årtal: F26001, K26001 etc.
-    const currentYear = new Date().getFullYear().toString().slice(-2); // "26" för 2026
-    const prefix = typ === "kvitto" ? "K" : "F";
-
-    // Hitta senaste numret för detta år, typ och användare
-    const lastInvoice = await prisma.invoice.findFirst({
-      where: {
-        userId,
-        fakturaNummer: {
-          startsWith: `${prefix}${currentYear}`,
-        },
-      },
-      orderBy: { fakturaNummer: "desc" },
-    });
-
-    let nextNumber = 1;
-    if (lastInvoice) {
-      // Extrahera löpnumret från t.ex. "F26005" -> 5
-      const lastNumber = parseInt(lastInvoice.fakturaNummer.slice(3));
-      nextNumber = lastNumber + 1;
-    }
-
-    const fakturaNummer = `${prefix}${currentYear}${nextNumber.toString().padStart(3, "0")}`;
+    const prefix = yearPrefix(typ === "kvitto" ? "K" : "F");
 
     // Kvitton sätts direkt som "Betald" (kontantköp)
     const invoiceStatus = typ === "kvitto" ? "Betald" : status;
 
-    // Skapa fakturan/kvittot
-    const invoice = await prisma.invoice.create({
-      data: {
-        userId,
-        fakturaNummer,
-        kundId,
-        fakturaDatum: new Date(fakturaDatum),
-        forfallDatum: new Date(forfallDatum),
-        rader: JSON.stringify(parsedRader),
-        totaltExMoms,
-        totaltMoms,
-        totaltInklMoms,
-        typ,
-        status: invoiceStatus,
-      },
-      include: {
-        kund: true,
-      },
-    });
+    // Läs högsta befintliga nummer och skapa. Unik-constrainten på
+    // (userId, fakturaNummer) fångar samtidiga anrop; då försöker vi igen.
+    let invoice = null;
+    for (let attempt = 0; attempt < 3 && !invoice; attempt++) {
+      const existing = await prisma.invoice.findMany({
+        where: { userId, fakturaNummer: { startsWith: prefix } },
+        select: { fakturaNummer: true },
+      });
+      const fakturaNummer = formatSequenceNumber(
+        prefix,
+        nextSequenceNumber(
+          existing.map((i) => i.fakturaNummer),
+          prefix
+        )
+      );
+
+      try {
+        invoice = await prisma.invoice.create({
+          data: {
+            userId,
+            fakturaNummer,
+            kundId,
+            fakturaDatum,
+            forfallDatum,
+            rader: JSON.stringify(parsedRader),
+            totaltExMoms,
+            totaltMoms,
+            totaltInklMoms,
+            typ,
+            status: invoiceStatus,
+          },
+          include: {
+            kund: true,
+          },
+        });
+      } catch (error) {
+        // P2002 = unikt fakturanummer togs av ett samtidigt anrop
+        const isUniqueViolation =
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          (error as { code: string }).code === "P2002";
+        if (!isUniqueViolation || attempt === 2) throw error;
+      }
+    }
+
+    if (!invoice) {
+      return NextResponse.json(
+        { error: "Kunde inte generera fakturanummer" },
+        { status: 500 }
+      );
+    }
 
     // Kvitton läggs automatiskt in i kassaboken som försäljning
     if (typ === "kvitto") {
@@ -223,16 +270,16 @@ export async function POST(request: Request) {
       await prisma.accounting.create({
         data: {
           userId,
-          datum: new Date(fakturaDatum),
+          datum: fakturaDatum,
           handelseTyp: "Försäljning",
-          beskrivning: `Kvitto ${fakturaNummer} - ${invoice.kund.namn}`,
+          beskrivning: `Kvitto ${invoice.fakturaNummer} - ${invoice.kund.namn}`,
           beloppExMoms: totaltExMoms,
           momsSats: 0.12,
           momsBelopp: totaltMoms,
           beloppInklMoms: totaltInklMoms,
           mottagare: invoice.kund.namn,
           antalBurkar: totalAntalBurkar > 0 ? totalAntalBurkar : null,
-          fakturaNummer,
+          fakturaNummer: invoice.fakturaNummer,
           fakturaId: invoice.id,
         },
       });
@@ -240,7 +287,6 @@ export async function POST(request: Request) {
 
     // Om kvitto ska skickas via e-post
     if (typ === "kvitto" && skickaKvittoMail && invoice.kund.epost) {
-      // Skicka e-post med kvitto
       try {
         await sendReceiptEmail(invoice, parsedRader, userId);
       } catch (emailError) {

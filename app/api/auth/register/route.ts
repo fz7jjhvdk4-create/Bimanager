@@ -1,18 +1,26 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
+
+const registerSchema = z.object({
+  name: z.string().trim().max(100).optional(),
+  email: z.string().trim().toLowerCase().email("Ogiltig e-postadress"),
+  password: z.string().min(8, "Lösenordet måste vara minst 8 tecken"),
+});
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password } = body;
+    const parsed = registerSchema.safeParse(body);
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "E-post och lösenord krävs" },
-        { status: 400 }
-      );
+    if (!parsed.success) {
+      const firstError =
+        parsed.error.issues[0]?.message || "Ogiltiga uppgifter";
+      return NextResponse.json({ error: firstError }, { status: 400 });
     }
+
+    const { name, email, password } = parsed.data;
 
     // Kontrollera om användaren redan finns
     const existingUser = await prisma.user.findUnique({
@@ -29,20 +37,24 @@ export async function POST(request: Request) {
     // Hasha lösenordet
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Skapa användaren
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        hashedPassword,
-      },
-    });
+    // Skapa användare och standardinställningar i samma transaktion
+    // så att användaren aldrig blir halvskapad.
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          name,
+          email,
+          hashedPassword,
+        },
+      });
 
-    // Skapa standard-inställningar för användaren
-    await prisma.settings.create({
-      data: {
-        userId: user.id,
-      },
+      await tx.settings.create({
+        data: {
+          userId: createdUser.id,
+        },
+      });
+
+      return createdUser;
     });
 
     return NextResponse.json(
