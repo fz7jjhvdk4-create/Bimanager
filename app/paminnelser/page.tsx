@@ -1,17 +1,19 @@
 import { Bell, Plus, Check, AlertTriangle, Calendar, Hexagon, MapPin } from "lucide-react";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import Link from "next/link";
 import AddReminderButton from "./AddReminderButton";
 import ReminderCard from "./ReminderCard";
 
 export const dynamic = "force-dynamic";
 
-async function getReminders() {
+async function getReminders(userId: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   return prisma.reminder.findMany({
     where: {
+      userId,
       utford: false,
     },
     include: {
@@ -30,9 +32,10 @@ async function getReminders() {
   });
 }
 
-async function getCompletedReminders() {
+async function getCompletedReminders(userId: string) {
   return prisma.reminder.findMany({
     where: {
+      userId,
       utford: true,
     },
     include: {
@@ -52,14 +55,15 @@ async function getCompletedReminders() {
   });
 }
 
-async function getApiariesAndColonies() {
+async function getApiariesAndColonies(userId: string) {
   const [apiaries, colonies] = await Promise.all([
     prisma.apiary.findMany({
+      where: { userId },
       select: { id: true, namn: true },
       orderBy: { namn: "asc" },
     }),
     prisma.colony.findMany({
-      where: { status: "Aktiv" },
+      where: { userId, status: "Aktiv" },
       select: {
         id: true,
         namn: true,
@@ -72,10 +76,11 @@ async function getApiariesAndColonies() {
 }
 
 export default async function PaminnelserPage() {
+  const userId = await requireAuth();
   const [reminders, completedReminders, { apiaries, colonies }] = await Promise.all([
-    getReminders(),
-    getCompletedReminders(),
-    getApiariesAndColonies(),
+    getReminders(userId),
+    getCompletedReminders(userId),
+    getApiariesAndColonies(userId),
   ]);
 
   const today = new Date();

@@ -1,11 +1,13 @@
 import { MapPin, Plus, Hexagon } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-async function getApiaries() {
+async function getApiaries(userId: string) {
   return prisma.apiary.findMany({
+    where: { userId },
     include: {
       _count: {
         select: { colonies: true },
@@ -20,7 +22,8 @@ async function getApiaries() {
 }
 
 export default async function BigårdarPage() {
-  const apiaries = await getApiaries();
+  const userId = await requireAuth();
+  const apiaries = await getApiaries(userId);
 
   return (
     <div className="space-y-6">

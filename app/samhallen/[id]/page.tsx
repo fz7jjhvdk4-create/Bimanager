@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import DeleteColonyButton from "./DeleteColonyButton";
 import AddEventButton from "./AddEventButton";
 
@@ -21,9 +22,9 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-async function getColony(id: string) {
-  return prisma.colony.findUnique({
-    where: { id },
+async function getColony(id: string, userId: string) {
+  return prisma.colony.findFirst({
+    where: { id, userId },
     include: {
       bigard: true,
       events: {
@@ -40,18 +41,20 @@ async function getColony(id: string) {
   });
 }
 
-async function getApiaries() {
+async function getApiaries(userId: string) {
   return prisma.apiary.findMany({
+    where: { userId },
     select: { id: true, namn: true },
     orderBy: { namn: "asc" },
   });
 }
 
 export default async function SamhällePage({ params }: PageProps) {
+  const userId = await requireAuth();
   const { id } = await params;
   const [colony, apiaries] = await Promise.all([
-    getColony(id),
-    getApiaries(),
+    getColony(id, userId),
+    getApiaries(userId),
   ]);
 
   if (!colony) {

@@ -1,6 +1,7 @@
 import { Hexagon, Plus, MapPin, Filter } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import ColonyFilters from "./ColonyFilters";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +10,8 @@ interface PageProps {
   searchParams: Promise<{ status?: string; bigard?: string }>;
 }
 
-async function getColonies(status?: string, bigardId?: string) {
-  const where: Record<string, unknown> = {};
+async function getColonies(userId: string, status?: string, bigardId?: string) {
+  const where: Record<string, unknown> = { userId };
   if (status) where.status = status;
   if (bigardId) where.bigardId = bigardId;
 
@@ -31,18 +32,20 @@ async function getColonies(status?: string, bigardId?: string) {
   });
 }
 
-async function getApiaries() {
+async function getApiaries(userId: string) {
   return prisma.apiary.findMany({
+    where: { userId },
     select: { id: true, namn: true },
     orderBy: { namn: "asc" },
   });
 }
 
 export default async function SamhällenPage({ searchParams }: PageProps) {
+  const userId = await requireAuth();
   const params = await searchParams;
   const [colonies, apiaries] = await Promise.all([
-    getColonies(params.status, params.bigard),
-    getApiaries(),
+    getColonies(userId, params.status, params.bigard),
+    getApiaries(userId),
   ]);
 
   // Group colonies by apiary

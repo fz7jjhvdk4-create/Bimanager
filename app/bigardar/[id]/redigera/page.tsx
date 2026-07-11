@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import ApiaryForm from "@/components/forms/ApiaryForm";
 
 export const dynamic = "force-dynamic";
@@ -10,15 +11,16 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-async function getApiary(id: string) {
-  return prisma.apiary.findUnique({
-    where: { id },
+async function getApiary(id: string, userId: string) {
+  return prisma.apiary.findFirst({
+    where: { id, userId },
   });
 }
 
 export default async function RedigeraBigårdPage({ params }: PageProps) {
+  const userId = await requireAuth();
   const { id } = await params;
-  const apiary = await getApiary(id);
+  const apiary = await getApiary(id, userId);
 
   if (!apiary) {
     notFound();

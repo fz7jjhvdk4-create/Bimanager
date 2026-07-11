@@ -1,17 +1,18 @@
 import { MapPin, Hexagon, Scale, Calendar } from "lucide-react";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-async function getStats() {
+async function getStats(userId: string) {
   const [apiaryCount, colonyCount, activeColonyCount, events] =
     await Promise.all([
-      prisma.apiary.count(),
-      prisma.colony.count(),
-      prisma.colony.count({ where: { status: "Aktiv" } }),
+      prisma.apiary.count({ where: { userId } }),
+      prisma.colony.count({ where: { userId } }),
+      prisma.colony.count({ where: { userId, status: "Aktiv" } }),
       prisma.event.findMany({
-        where: { handelseTyp: "Skörd" },
+        where: { userId, handelseTyp: "Skörd" },
         orderBy: { datum: "desc" },
         take: 100,
       }),
@@ -36,8 +37,9 @@ async function getStats() {
   return { apiaryCount, colonyCount, activeColonyCount, totalHarvest };
 }
 
-async function getRecentEvents() {
+async function getRecentEvents(userId: string) {
   return prisma.event.findMany({
+    where: { userId },
     orderBy: { datum: "desc" },
     take: 5,
     include: {
@@ -51,8 +53,9 @@ async function getRecentEvents() {
 }
 
 export default async function Dashboard() {
-  const stats = await getStats();
-  const recentEvents = await getRecentEvents();
+  const userId = await requireAuth();
+  const stats = await getStats(userId);
+  const recentEvents = await getRecentEvents(userId);
 
   const statCards = [
     {

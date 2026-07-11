@@ -2,6 +2,7 @@ import { ArrowLeft, Edit, Trash2, Hexagon, Plus, MapPin } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import DeleteApiaryButton from "./DeleteApiaryButton";
 
 export const dynamic = "force-dynamic";
@@ -11,9 +12,9 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-async function getApiary(id: string) {
-  return prisma.apiary.findUnique({
-    where: { id },
+async function getApiary(id: string, userId: string) {
+  return prisma.apiary.findFirst({
+    where: { id, userId },
     include: {
       colonies: {
         orderBy: [{ status: "asc" }, { platsNummer: "asc" }],
@@ -23,8 +24,9 @@ async function getApiary(id: string) {
 }
 
 export default async function BigårdPage({ params }: PageProps) {
+  const userId = await requireAuth();
   const { id } = await params;
-  const apiary = await getApiary(id);
+  const apiary = await getApiary(id, userId);
 
   if (!apiary) {
     notFound();

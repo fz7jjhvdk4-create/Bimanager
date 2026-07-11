@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import ColonyForm from "@/components/forms/ColonyForm";
 
 export const dynamic = "force-dynamic";
@@ -10,16 +11,18 @@ interface PageProps {
   searchParams: Promise<{ bigard?: string }>;
 }
 
-async function getApiaries() {
+async function getApiaries(userId: string) {
   return prisma.apiary.findMany({
+    where: { userId },
     select: { id: true, namn: true },
     orderBy: { namn: "asc" },
   });
 }
 
 export default async function NyttSamhällePage({ searchParams }: PageProps) {
+  const userId = await requireAuth();
   const params = await searchParams;
-  const apiaries = await getApiaries();
+  const apiaries = await getApiaries(userId);
 
   // If no apiaries exist, redirect to create one first
   if (apiaries.length === 0) {
