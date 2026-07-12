@@ -104,7 +104,7 @@ export default function NotificationBell() {
       >
         <Bell
           className={`h-6 w-6 ${
-            totalUrgent > 0 ? "text-amber-500" : "text-[var(--muted)]"
+            totalUrgent > 0 ? "text-[var(--accent)]" : "text-[var(--muted)]"
           }`}
         />
         {reminders.length > 0 && (
@@ -150,7 +150,7 @@ export default function NotificationBell() {
                   <div
                     key={reminder.id}
                     className={`p-3 hover:bg-[var(--accent)]/5 ${
-                      isOverdue(reminder.datum) ? "bg-red-50/50" : ""
+                      isOverdue(reminder.datum) ? "bg-red-500/10" : ""
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -164,7 +164,7 @@ export default function NotificationBell() {
                               isOverdue(reminder.datum)
                                 ? "text-red-600"
                                 : isToday(reminder.datum)
-                                ? "text-amber-600"
+                                ? "text-[var(--accent-hover)]"
                                 : "text-[var(--muted)]"
                             }`}
                           >

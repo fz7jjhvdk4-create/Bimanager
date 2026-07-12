@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Trash2, Clock, MapPin, Hexagon, RefreshCw } from "lucide-react";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Reminder {
   id: string;
@@ -38,6 +39,7 @@ export default function ReminderCard({
 }: ReminderCardProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleComplete = async () => {
     setLoading(true);
@@ -59,24 +61,16 @@ export default function ReminderCard({
   };
 
   const handleDelete = async () => {
-    if (!confirm("Är du säker på att du vill ta bort denna påminnelse?")) {
-      return;
+    const response = await fetch(`/api/reminders/${reminder.id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      throw new Error(data?.error || "Kunde inte ta bort påminnelse");
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/reminders/${reminder.id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        router.refresh();
-      }
-    } catch (error) {
-      console.error("Error deleting reminder:", error);
-    } finally {
-      setLoading(false);
-    }
+    router.refresh();
   };
 
   const daysUntil = Math.ceil(
@@ -87,9 +81,9 @@ export default function ReminderCard({
     <div
       className={`bg-[var(--card-bg)] rounded-xl p-4 ring-1 ${
         isOverdue
-          ? "ring-red-300 bg-red-50/50"
+          ? "ring-red-300 bg-red-500/10"
           : isToday
-          ? "ring-amber-300 bg-amber-50/50"
+          ? "ring-[var(--accent)]/50 bg-[var(--accent)]/10"
           : "ring-[var(--card-border)]"
       }`}
     >
@@ -121,7 +115,7 @@ export default function ReminderCard({
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span
               className={`flex items-center gap-1 ${
-                isOverdue ? "text-red-600" : isToday ? "text-amber-600" : "text-[var(--muted)]"
+                isOverdue ? "text-red-600" : isToday ? "text-[var(--accent-hover)]" : "text-[var(--muted)]"
               }`}
             >
               <Clock className="h-4 w-4" />
@@ -157,15 +151,29 @@ export default function ReminderCard({
             <Check className="h-5 w-5" />
           </button>
           <button
-            onClick={handleDelete}
+            onClick={() => setShowDeleteDialog(true)}
             disabled={loading}
             className="flex items-center justify-center h-10 w-10 rounded-lg bg-[var(--card-bg)] text-red-500 ring-1 ring-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
             title="Ta bort"
+            aria-label="Ta bort påminnelse"
           >
             <Trash2 className="h-5 w-5" />
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDelete}
+        title="Ta bort påminnelse"
+        message={
+          <p>
+            Är du säker på att du vill ta bort påminnelsen{" "}
+            <strong>{reminder.titel}</strong>? Detta går inte att ångra.
+          </p>
+        }
+      />
     </div>
   );
 }

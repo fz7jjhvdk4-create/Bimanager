@@ -13,6 +13,7 @@ import {
   Download,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Transaction {
   id: string;
@@ -37,6 +38,7 @@ export default function KassabokPage() {
     new Date().getFullYear().toString()
   );
   const [filterType, setFilterType] = useState<string>("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTransactions();
@@ -59,16 +61,16 @@ export default function KassabokPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Är du säker på att du vill ta bort denna transaktion?"))
-      return;
-
-    try {
-      await fetch(`/api/accounting/${id}`, { method: "DELETE" });
-      fetchTransactions();
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
+  async function handleDelete() {
+    if (!deleteId) return;
+    const res = await fetch(`/api/accounting/${deleteId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || "Kunde inte ta bort transaktion");
     }
+    fetchTransactions();
   }
 
   // Beräkna sammanfattning
@@ -91,10 +93,7 @@ export default function KassabokPage() {
   );
 
   function exportToCSV() {
-    if (transactions.length === 0) {
-      alert("Inga transaktioner att exportera");
-      return;
-    }
+    if (transactions.length === 0) return;
 
     // CSV-headers
     const headers = [
@@ -374,8 +373,10 @@ export default function KassabokPage() {
                           </button>
                         </Link>
                         <button
-                          onClick={() => handleDelete(t.id)}
+                          onClick={() => setDeleteId(t.id)}
                           className="p-1 text-red-500 hover:text-red-400"
+                          title="Ta bort"
+                          aria-label="Ta bort transaktion"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -388,6 +389,19 @@ export default function KassabokPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Ta bort transaktion"
+        message={
+          <p>
+            Är du säker på att du vill ta bort denna transaktion? Detta går
+            inte att ångra.
+          </p>
+        }
+      />
     </div>
   );
 }

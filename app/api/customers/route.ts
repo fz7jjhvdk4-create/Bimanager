@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { customerSchema } from "@/lib/schemas";
 
 // GET - Hämta alla kunder för current user
-export async function GET(request: Request) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
+export const GET = withAuth(
+  "Kunde inte hämta kunder",
+  async (request, { userId }) => {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
 
@@ -39,52 +38,28 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(customers);
-  } catch (error) {
-    console.error("Error fetching customers:", error);
-    return NextResponse.json(
-      { error: "Kunde inte hämta kunder" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // POST - Skapa ny kund
-export async function POST(request: Request) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const body = await request.json();
-
-    const {
-      namn,
-      adress,
-      postnummer,
-      ort,
-      epost,
-      telefon,
-      organisationsnummer,
-    } = body;
+export const POST = withAuth(
+  "Kunde inte skapa kund",
+  async (request, { userId }) => {
+    const body = customerSchema.parse(await request.json());
 
     const customer = await prisma.customer.create({
       data: {
         userId,
-        namn,
-        adress,
-        postnummer,
-        ort,
-        epost,
-        telefon,
-        organisationsnummer,
+        namn: body.namn,
+        adress: body.adress,
+        postnummer: body.postnummer,
+        ort: body.ort,
+        epost: body.epost,
+        telefon: body.telefon,
+        organisationsnummer: body.organisationsnummer,
       },
     });
 
     return NextResponse.json(customer, { status: 201 });
-  } catch (error) {
-    console.error("Error creating customer:", error);
-    return NextResponse.json(
-      { error: "Kunde inte skapa kund" },
-      { status: 500 }
-    );
   }
-}
+);

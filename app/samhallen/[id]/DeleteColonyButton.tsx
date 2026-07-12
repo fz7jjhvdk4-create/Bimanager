@@ -9,11 +9,13 @@ import Modal from "@/components/ui/Modal";
 interface DeleteColonyButtonProps {
   colonyId: string;
   colonyName: string;
+  eventCount?: number;
 }
 
 export default function DeleteColonyButton({
   colonyId,
   colonyName,
+  eventCount = 0,
 }: DeleteColonyButtonProps) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
@@ -46,7 +48,7 @@ export default function DeleteColonyButton({
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-red-600 font-medium ring-1 ring-red-200 hover:bg-red-50 transition-colors"
+        className="inline-flex items-center gap-2 rounded-lg bg-[var(--card-bg)] px-4 py-2 text-red-600 font-medium ring-1 ring-red-200 hover:bg-red-50 transition-colors"
       >
         <Trash2 className="h-4 w-4" />
         Ta bort
@@ -58,10 +60,20 @@ export default function DeleteColonyButton({
         title="Ta bort samhälle"
       >
         <div className="space-y-4">
-          <p className="text-amber-700">
+          <p className="text-[var(--muted)]">
             Är du säker på att du vill ta bort samhället{" "}
-            <strong>{colonyName}</strong>? Alla händelser för detta samhälle
-            kommer också att tas bort. Detta går inte att ångra.
+            <strong>{colonyName}</strong>?{" "}
+            {eventCount > 0 ? (
+              <>
+                <strong>
+                  {eventCount === 1
+                    ? "1 registrerad händelse"
+                    : `${eventCount} registrerade händelser`}
+                </strong>{" "}
+                tas också bort.{" "}
+              </>
+            ) : null}
+            Detta går inte att ångra.
           </p>
 
           {error && (

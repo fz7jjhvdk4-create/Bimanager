@@ -82,8 +82,8 @@ export default async function SamhällenPage({ searchParams }: PageProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-amber-900">Samhällen</h1>
-          <p className="text-amber-700 mt-1">
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">Samhällen</h1>
+          <p className="text-[var(--muted)] mt-1">
             Hantera dina bisamhällen och deras händelser
           </p>
         </div>
@@ -101,12 +101,12 @@ export default async function SamhällenPage({ searchParams }: PageProps) {
 
       {/* Colonies */}
       {colonies.length === 0 ? (
-        <div className="rounded-xl bg-white p-12 shadow-sm ring-1 ring-amber-100 text-center">
-          <Hexagon className="h-12 w-12 text-amber-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-amber-900 mb-2">
+        <div className="rounded-xl bg-[var(--card-bg)] p-12 shadow-sm ring-1 ring-[var(--card-border)] text-center">
+          <Hexagon className="h-12 w-12 text-[var(--accent)]/50 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-[var(--foreground)] mb-2">
             Inga samhällen hittades
           </h3>
-          <p className="text-amber-600 mb-4">
+          <p className="text-[var(--accent-hover)] mb-4">
             {params.status || params.bigard
               ? "Inga samhällen matchar dina filter."
               : "Börja med att lägga till ditt första samhälle."}
@@ -124,19 +124,19 @@ export default async function SamhällenPage({ searchParams }: PageProps) {
           {Object.entries(coloniesByApiary).map(([apiaryId, group]) => (
             <div
               key={apiaryId}
-              className="rounded-xl bg-white shadow-sm ring-1 ring-amber-100 overflow-hidden"
+              className="rounded-xl bg-[var(--card-bg)] shadow-sm ring-1 ring-[var(--card-border)] overflow-hidden"
             >
               {/* Apiary Header */}
-              <div className="bg-gradient-to-r from-amber-50 to-amber-100 px-6 py-3 border-b border-amber-100">
+              <div className="bg-gradient-to-r from-amber-50 to-amber-100 px-6 py-3 border-b border-[var(--card-border)]">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-amber-600" />
+                  <MapPin className="h-4 w-4 text-[var(--accent-hover)]" />
                   <Link
                     href={`/bigardar/${group.apiary.id}`}
-                    className="font-medium text-amber-900 hover:text-amber-700"
+                    className="font-medium text-[var(--foreground)] hover:text-[var(--accent)]"
                   >
                     {group.apiary.namn}
                   </Link>
-                  <span className="text-sm text-amber-600">
+                  <span className="text-sm text-[var(--accent-hover)]">
                     ({group.colonies.length} samhällen)
                   </span>
                 </div>
@@ -148,23 +148,23 @@ export default async function SamhällenPage({ searchParams }: PageProps) {
                   <Link
                     key={colony.id}
                     href={`/samhallen/${colony.id}`}
-                    className="flex items-start gap-3 p-4 rounded-lg bg-stone-50 hover:bg-amber-50 transition-colors group"
+                    className="flex items-start gap-3 p-4 rounded-lg bg-[var(--background)] hover:bg-[var(--accent)]/10 transition-colors group"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500 text-white font-semibold">
                       {colony.platsNummer || "?"}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-medium text-amber-900 group-hover:text-amber-700 truncate">
+                        <p className="font-medium text-[var(--foreground)] group-hover:text-[var(--accent)] truncate">
                           {colony.namn}
                         </p>
                         <span
-                          className={`shrink-0 text-xs px-2 py-0.5 rounded-full ${statusColors[colony.status] || "bg-stone-100 text-stone-600"}`}
+                          className={`shrink-0 text-xs px-2 py-0.5 rounded-full ${statusColors[colony.status] || "bg-[var(--accent)]/10 text-[var(--muted)]"}`}
                         >
                           {colony.status}
                         </span>
                       </div>
-                      <div className="mt-1 text-sm text-amber-600">
+                      <div className="mt-1 text-sm text-[var(--accent-hover)]">
                         {colony.drottningRas && (
                           <span>
                             {colony.drottningRas}
@@ -175,12 +175,12 @@ export default async function SamhällenPage({ searchParams }: PageProps) {
                           <span>{colony.kupaTyp}</span>
                         )}
                         {!colony.drottningRas && !colony.kupaTyp && (
-                          <span className="text-amber-400">
+                          <span className="text-[var(--accent)]">
                             Ingen info angiven
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-xs text-amber-500">
+                      <p className="mt-1 text-xs text-[var(--accent)]">
                         {colony._count.events} händelser
                       </p>
                     </div>

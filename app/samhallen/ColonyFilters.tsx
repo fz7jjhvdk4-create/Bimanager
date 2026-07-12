@@ -36,7 +36,7 @@ export default function ColonyFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex items-center gap-2 text-amber-600">
+      <div className="flex items-center gap-2 text-[var(--accent-hover)]">
         <Filter className="h-4 w-4" />
         <span className="text-sm font-medium">Filter:</span>
       </div>
@@ -45,7 +45,7 @@ export default function ColonyFilters({
       <select
         value={currentStatus || ""}
         onChange={(e) => updateFilter("status", e.target.value || null)}
-        className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-sm text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-1.5 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500"
       >
         <option value="">Alla statusar</option>
         {COLONY_STATUSES.map((status) => (
@@ -59,7 +59,7 @@ export default function ColonyFilters({
       <select
         value={currentApiary || ""}
         onChange={(e) => updateFilter("bigard", e.target.value || null)}
-        className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-sm text-amber-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-1.5 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-amber-500"
       >
         <option value="">Alla bigårdar</option>
         {apiaries.map((apiary) => (
@@ -73,7 +73,7 @@ export default function ColonyFilters({
       {hasFilters && (
         <button
           onClick={clearFilters}
-          className="inline-flex items-center gap-1 rounded-lg bg-amber-100 px-3 py-1.5 text-sm text-amber-700 hover:bg-amber-200 transition-colors"
+          className="inline-flex items-center gap-1 rounded-lg bg-[var(--accent)]/20 px-3 py-1.5 text-sm text-[var(--muted)] hover:bg-[var(--accent)]/30 transition-colors"
         >
           <X className="h-3 w-3" />
           Rensa filter

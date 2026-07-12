@@ -1,20 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+import { withAuth } from "@/lib/auth";
+import { apiarySchema } from "@/lib/schemas";
 
 // GET single apiary
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
+export const GET = withAuth(
+  "Kunde inte hämta bigård",
+  async (_request, { userId, params }) => {
     const apiary = await prisma.apiary.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
       include: {
         colonies: {
           orderBy: { platsNummer: "asc" },
@@ -23,83 +17,66 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!apiary) {
-      return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Bigården hittades inte" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(apiary);
-  } catch (error) {
-    console.error("Error fetching apiary:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch apiary" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // PUT update apiary
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-    const body = await request.json();
-    const { namn, adress, latitude, longitude, beskrivning } = body;
-
-    if (!namn) {
-      return NextResponse.json({ error: "Namn is required" }, { status: 400 });
-    }
-
-    // Verify ownership
+export const PUT = withAuth(
+  "Kunde inte uppdatera bigård",
+  async (request, { userId, params }) => {
     const existing = await prisma.apiary.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Bigården hittades inte" },
+        { status: 404 }
+      );
     }
 
+    const body = apiarySchema.parse(await request.json());
+
     const apiary = await prisma.apiary.update({
-      where: { id },
+      where: { id: params.id },
       data: {
-        namn,
-        adress: adress || null,
-        latitude: latitude || null,
-        longitude: longitude || null,
-        beskrivning: beskrivning || null,
+        namn: body.namn,
+        adress: body.adress,
+        latitude: body.latitude,
+        longitude: body.longitude,
+        beskrivning: body.beskrivning,
       },
     });
 
     return NextResponse.json(apiary);
-  } catch (error) {
-    console.error("Error updating apiary:", error);
-    return NextResponse.json(
-      { error: "Failed to update apiary" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // DELETE apiary
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-
-    // Verify ownership
+export const DELETE = withAuth(
+  "Kunde inte ta bort bigård",
+  async (_request, { userId, params }) => {
     const existing = await prisma.apiary.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Bigården hittades inte" },
+        { status: 404 }
+      );
     }
 
     // Check if apiary has colonies
     const coloniesCount = await prisma.colony.count({
-      where: { bigardId: id },
+      where: { bigardId: params.id },
     });
 
     if (coloniesCount > 0) {
@@ -113,15 +90,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     await prisma.apiary.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting apiary:", error);
-    return NextResponse.json(
-      { error: "Failed to delete apiary" },
-      { status: 500 }
-    );
   }
-}
+);

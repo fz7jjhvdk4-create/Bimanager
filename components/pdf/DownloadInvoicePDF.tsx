@@ -52,9 +52,11 @@ export default function DownloadInvoicePDF({
   variant = "primary",
 }: DownloadInvoicePDFProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDownload = async () => {
     setLoading(true);
+    setError(null);
     try {
       const blob = await pdf(
         <InvoicePDF invoice={invoice} settings={settings} />
@@ -70,25 +72,28 @@ export default function DownloadInvoicePDF({
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Kunde inte generera PDF. Försök igen.");
+      setError("Kunde inte generera PDF. Försök igen.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Button onClick={handleDownload} disabled={loading} variant={variant}>
-      {loading ? (
-        <>
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Genererar...
-        </>
-      ) : (
-        <>
-          <Download className="h-4 w-4 mr-2" />
-          Ladda ner PDF
-        </>
-      )}
-    </Button>
+    <div className="inline-flex flex-col gap-2">
+      <Button onClick={handleDownload} disabled={loading} variant={variant}>
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Genererar...
+          </>
+        ) : (
+          <>
+            <Download className="h-4 w-4 mr-2" />
+            Ladda ner PDF
+          </>
+        )}
+      </Button>
+      {error && <span className="text-sm text-red-600">{error}</span>}
+    </div>
   );
 }

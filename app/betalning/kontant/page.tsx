@@ -34,6 +34,7 @@ export default function KontantBetalningPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [createdReceipt, setCreatedReceipt] = useState<CreatedReceipt | null>(null);
 
   const [formData, setFormData] = useState({
@@ -75,6 +76,7 @@ export default function KontantBetalningPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     const { exMoms, moms, totalt } = beraknaBelopp();
 
@@ -115,7 +117,7 @@ export default function KontantBetalningPage() {
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Kunde inte registrera betalning");
+      setError("Kunde inte registrera betalning. Försök igen.");
     } finally {
       setLoading(false);
     }
@@ -437,6 +439,12 @@ export default function KontantBetalningPage() {
                 <span>{totalt.toFixed(2)} kr</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm dark:bg-red-950 dark:text-red-300">
+            {error}
           </div>
         )}
 

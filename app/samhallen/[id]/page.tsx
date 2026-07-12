@@ -75,24 +75,24 @@ export default async function SamhällePage({ params }: PageProps) {
         <div className="flex items-start gap-4">
           <Link
             href="/samhallen"
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-white ring-1 ring-amber-200 text-amber-600 hover:bg-amber-50 transition-colors mt-1"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--card-bg)] ring-1 ring-[var(--card-border)] text-[var(--accent-hover)] hover:bg-[var(--accent)]/10 transition-colors mt-1"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-amber-900">
+              <h1 className="text-3xl font-bold text-[var(--foreground)]">
                 {colony.namn}
               </h1>
               <span
-                className={`px-2 py-1 rounded-full text-sm font-medium ${statusColors[colony.status] || "bg-stone-100 text-stone-600"}`}
+                className={`px-2 py-1 rounded-full text-sm font-medium ${statusColors[colony.status] || "bg-[var(--accent)]/10 text-[var(--muted)]"}`}
               >
                 {colony.status}
               </span>
             </div>
             <Link
               href={`/bigardar/${colony.bigard.id}`}
-              className="text-amber-600 hover:text-amber-700 mt-1 inline-block"
+              className="text-[var(--accent-hover)] hover:text-[var(--accent)] mt-1 inline-block"
             >
               {colony.bigard.namn}
             </Link>
@@ -101,39 +101,43 @@ export default async function SamhällePage({ params }: PageProps) {
         <div className="flex gap-2">
           <Link
             href={`/samhallen/${colony.id}/redigera`}
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-amber-700 font-medium ring-1 ring-amber-200 hover:bg-amber-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--card-bg)] px-4 py-2 text-[var(--muted)] font-medium ring-1 ring-[var(--card-border)] hover:bg-[var(--accent)]/10 transition-colors"
           >
             <Edit className="h-4 w-4" />
             Redigera
           </Link>
-          <DeleteColonyButton colonyId={colony.id} colonyName={colony.namn} />
+          <DeleteColonyButton
+            colonyId={colony.id}
+            colonyName={colony.namn}
+            eventCount={colony.events.length}
+          />
         </div>
       </div>
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Queen Info */}
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <Crown className="h-5 w-5 text-amber-600" />
-            <h2 className="text-lg font-semibold text-amber-900">Drottning</h2>
+            <Crown className="h-5 w-5 text-[var(--accent-hover)]" />
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">Drottning</h2>
           </div>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-amber-600">Ras</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Ras</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.drottningRas || "-"}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-amber-600">Märkningsår</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Märkningsår</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.drottningAr || "-"}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-amber-600">Vingklippt</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Vingklippt</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.drottningVingklippt ? "Ja" : "Nej"}
               </dd>
             </div>
@@ -141,27 +145,27 @@ export default async function SamhällePage({ params }: PageProps) {
         </div>
 
         {/* Hive Info */}
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <Box className="h-5 w-5 text-amber-600" />
-            <h2 className="text-lg font-semibold text-amber-900">Kupa</h2>
+            <Box className="h-5 w-5 text-[var(--accent-hover)]" />
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">Kupa</h2>
           </div>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-amber-600">Kuptyp</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Kuptyp</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.kupaTyp || "-"}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-amber-600">Ramar yngelrum</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Ramar yngelrum</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.ramTypYngelrum || "-"}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-amber-600">Ramar skatt</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Ramar skatt</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.ramTypSkattlador || "-"}
               </dd>
             </div>
@@ -169,27 +173,27 @@ export default async function SamhällePage({ params }: PageProps) {
         </div>
 
         {/* Meta Info */}
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-amber-600" />
-            <h2 className="text-lg font-semibold text-amber-900">Info</h2>
+            <Calendar className="h-5 w-5 text-[var(--accent-hover)]" />
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">Info</h2>
           </div>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-amber-600">Platsnummer</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Platsnummer</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.platsNummer || "-"}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-amber-600">Skapad</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Skapad</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {new Date(colony.skapadDatum).toLocaleDateString("sv-SE")}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-amber-600">Händelser</dt>
-              <dd className="font-medium text-amber-900">
+              <dt className="text-[var(--accent-hover)]">Händelser</dt>
+              <dd className="font-medium text-[var(--foreground)]">
                 {colony.events.length}
               </dd>
             </div>
@@ -199,10 +203,10 @@ export default async function SamhällePage({ params }: PageProps) {
 
       {/* Related colonies */}
       {(colony.skapadFran || colony.avlaggare.length > 0) && (
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+        <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
             <GitBranch className="h-5 w-5 text-purple-600" />
-            <h2 className="text-lg font-semibold text-amber-900">
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">
               Släktträd
             </h2>
           </div>
@@ -229,7 +233,7 @@ export default async function SamhällePage({ params }: PageProps) {
             )}
             {colony.avlaggare.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-amber-600 mb-2">
+                <p className="text-xs font-medium text-[var(--accent-hover)] mb-2">
                   AVLÄGGARE ({colony.avlaggare.length})
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -237,14 +241,14 @@ export default async function SamhällePage({ params }: PageProps) {
                     <Link
                       key={a.id}
                       href={`/samhallen/${a.id}`}
-                      className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-100 hover:bg-amber-100 transition-colors group"
+                      className="flex items-center gap-2 p-3 rounded-lg bg-[var(--accent)]/10 border border-[var(--card-border)] hover:bg-[var(--accent)]/20 transition-colors group"
                     >
-                      <Hexagon className="h-5 w-5 text-amber-500" />
+                      <Hexagon className="h-5 w-5 text-[var(--accent)]" />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-amber-900 truncate">
+                        <p className="font-medium text-[var(--foreground)] truncate">
                           {a.namn}
                         </p>
-                        <p className="text-xs text-amber-600">
+                        <p className="text-xs text-[var(--accent-hover)]">
                           {a.bigard.namn} • {new Date(a.skapadDatum).toLocaleDateString("sv-SE")}
                         </p>
                       </div>
@@ -252,7 +256,7 @@ export default async function SamhällePage({ params }: PageProps) {
                         className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           a.status === "Aktiv"
                             ? "bg-emerald-100 text-emerald-700"
-                            : "bg-stone-100 text-stone-600"
+                            : "bg-[var(--accent)]/10 text-[var(--muted)]"
                         }`}
                       >
                         {a.status}
@@ -268,20 +272,20 @@ export default async function SamhällePage({ params }: PageProps) {
 
       {/* Notes */}
       {colony.anteckningar && (
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
-          <h2 className="text-lg font-semibold text-amber-900 mb-2">
+        <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
+          <h2 className="text-lg font-semibold text-[var(--foreground)] mb-2">
             Anteckningar
           </h2>
-          <p className="text-amber-700 whitespace-pre-wrap">
+          <p className="text-[var(--muted)] whitespace-pre-wrap">
             {colony.anteckningar}
           </p>
         </div>
       )}
 
       {/* Events Section */}
-      <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+      <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-amber-900">Händelser</h2>
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Händelser</h2>
           <AddEventButton colonyId={colony.id} apiaries={apiaries} />
         </div>
 

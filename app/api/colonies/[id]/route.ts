@@ -1,20 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+import { withAuth } from "@/lib/auth";
+import { colonySchema } from "@/lib/schemas";
 
 // GET single colony with events
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
+export const GET = withAuth(
+  "Kunde inte hämta samhälle",
+  async (_request, { userId, params }) => {
     const colony = await prisma.colony.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
       include: {
         bigard: true,
         events: {
@@ -36,111 +30,85 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!colony) {
-      return NextResponse.json({ error: "Colony not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(colony);
-  } catch (error) {
-    console.error("Error fetching colony:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch colony" },
-      { status: 500 }
-    );
-  }
-}
-
-// PUT update colony
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-    const body = await request.json();
-    const {
-      bigardId,
-      namn,
-      platsNummer,
-      drottningRas,
-      drottningAr,
-      drottningVingklippt,
-      kupaTyp,
-      ramTypYngelrum,
-      ramTypSkattlador,
-      status,
-      anteckningar,
-    } = body;
-
-    if (!namn) {
       return NextResponse.json(
-        { error: "Namn är obligatoriskt" },
-        { status: 400 }
+        { error: "Samhället hittades inte" },
+        { status: 404 }
       );
     }
 
-    // Verify ownership
+    return NextResponse.json(colony);
+  }
+);
+
+// PUT update colony
+export const PUT = withAuth(
+  "Kunde inte uppdatera samhälle",
+  async (request, { userId, params }) => {
     const existing = await prisma.colony.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Colony not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Samhället hittades inte" },
+        { status: 404 }
+      );
+    }
+
+    const body = colonySchema.parse(await request.json());
+
+    // Verify target apiary belongs to user (bigarden kan ha bytts i formuläret)
+    const apiary = await prisma.apiary.findFirst({
+      where: { id: body.bigardId, userId },
+    });
+
+    if (!apiary) {
+      return NextResponse.json(
+        { error: "Bigården finns inte" },
+        { status: 404 }
+      );
     }
 
     const colony = await prisma.colony.update({
-      where: { id },
+      where: { id: params.id },
       data: {
-        bigardId: bigardId || undefined,
-        namn,
-        platsNummer: platsNummer ?? null,
-        drottningRas: drottningRas || null,
-        drottningAr: drottningAr || null,
-        drottningVingklippt: drottningVingklippt ?? false,
-        kupaTyp: kupaTyp || null,
-        ramTypYngelrum: ramTypYngelrum || null,
-        ramTypSkattlador: ramTypSkattlador || null,
-        status: status || "Aktiv",
-        anteckningar: anteckningar || null,
+        bigardId: body.bigardId,
+        namn: body.namn,
+        platsNummer: body.platsNummer,
+        drottningRas: body.drottningRas,
+        drottningAr: body.drottningAr,
+        drottningVingklippt: body.drottningVingklippt,
+        kupaTyp: body.kupaTyp,
+        ramTypYngelrum: body.ramTypYngelrum,
+        ramTypSkattlador: body.ramTypSkattlador,
+        status: body.status,
+        anteckningar: body.anteckningar,
       },
     });
 
     return NextResponse.json(colony);
-  } catch (error) {
-    console.error("Error updating colony:", error);
-    return NextResponse.json(
-      { error: "Failed to update colony" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // DELETE colony
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-
-    // Verify ownership
+export const DELETE = withAuth(
+  "Kunde inte ta bort samhälle",
+  async (_request, { userId, params }) => {
     const existing = await prisma.colony.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Colony not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Samhället hittades inte" },
+        { status: 404 }
+      );
     }
 
     await prisma.colony.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting colony:", error);
-    return NextResponse.json(
-      { error: "Failed to delete colony" },
-      { status: 500 }
-    );
   }
-}
+);

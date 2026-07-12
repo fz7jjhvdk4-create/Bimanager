@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { customerSchema } from "@/lib/schemas";
 
 // GET - Hämta en kund
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
+export const GET = withAuth(
+  "Kunde inte hämta kund",
+  async (_request, { userId, params }) => {
     const customer = await prisma.customer.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
       include: {
         invoices: {
           orderBy: { fakturaDatum: "desc" },
@@ -29,30 +24,15 @@ export async function GET(
     }
 
     return NextResponse.json(customer);
-  } catch (error) {
-    console.error("Error fetching customer:", error);
-    return NextResponse.json(
-      { error: "Kunde inte hämta kund" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // PUT - Uppdatera kund
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-    const body = await request.json();
-
-    // Verify ownership
+export const PUT = withAuth(
+  "Kunde inte uppdatera kund",
+  async (request, { userId, params }) => {
     const existing = await prisma.customer.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
@@ -62,53 +42,31 @@ export async function PUT(
       );
     }
 
-    const {
-      namn,
-      adress,
-      postnummer,
-      ort,
-      epost,
-      telefon,
-      organisationsnummer,
-    } = body;
+    const body = customerSchema.parse(await request.json());
 
     const customer = await prisma.customer.update({
-      where: { id },
+      where: { id: params.id },
       data: {
-        namn,
-        adress,
-        postnummer,
-        ort,
-        epost,
-        telefon,
-        organisationsnummer,
+        namn: body.namn,
+        adress: body.adress,
+        postnummer: body.postnummer,
+        ort: body.ort,
+        epost: body.epost,
+        telefon: body.telefon,
+        organisationsnummer: body.organisationsnummer,
       },
     });
 
     return NextResponse.json(customer);
-  } catch (error) {
-    console.error("Error updating customer:", error);
-    return NextResponse.json(
-      { error: "Kunde inte uppdatera kund" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // DELETE - Ta bort kund
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-
-    // Kontrollera om kunden finns och tillhör användaren
+export const DELETE = withAuth(
+  "Kunde inte ta bort kund",
+  async (_request, { userId, params }) => {
     const customer = await prisma.customer.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
       include: { invoices: true },
     });
 
@@ -127,15 +85,9 @@ export async function DELETE(
     }
 
     await prisma.customer.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ message: "Kund borttagen" });
-  } catch (error) {
-    console.error("Error deleting customer:", error);
-    return NextResponse.json(
-      { error: "Kunde inte ta bort kund" },
-      { status: 500 }
-    );
   }
-}
+);

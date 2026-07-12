@@ -30,8 +30,8 @@ export default async function BigårdarPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-amber-900">Bigårdar</h1>
-          <p className="text-amber-700 mt-1">
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">Bigårdar</h1>
+          <p className="text-[var(--muted)] mt-1">
             Hantera dina bigårdar och deras samhällen
           </p>
         </div>
@@ -46,12 +46,12 @@ export default async function BigårdarPage() {
 
       {/* Apiaries Grid */}
       {apiaries.length === 0 ? (
-        <div className="rounded-xl bg-white p-12 shadow-sm ring-1 ring-amber-100 text-center">
-          <MapPin className="h-12 w-12 text-amber-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-amber-900 mb-2">
+        <div className="rounded-xl bg-[var(--card-bg)] p-12 shadow-sm ring-1 ring-[var(--card-border)] text-center">
+          <MapPin className="h-12 w-12 text-[var(--accent)]/50 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-[var(--foreground)] mb-2">
             Inga bigårdar ännu
           </h3>
-          <p className="text-amber-600 mb-4">
+          <p className="text-[var(--accent-hover)] mb-4">
             Börja med att lägga till din första bigård.
           </p>
           <Link
@@ -68,7 +68,7 @@ export default async function BigårdarPage() {
             <Link
               key={apiary.id}
               href={`/bigardar/${apiary.id}`}
-              className="group relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-amber-100 hover:shadow-md hover:ring-amber-200 transition-all"
+              className="group relative overflow-hidden rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)] hover:shadow-md hover:ring-[var(--card-border)] transition-all"
             >
               {/* Map preview placeholder */}
               <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-amber-100 opacity-50" />
@@ -80,11 +80,11 @@ export default async function BigårdarPage() {
                       <MapPin className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-amber-900 group-hover:text-amber-700 transition-colors">
+                      <h3 className="font-semibold text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">
                         {apiary.namn}
                       </h3>
                       {apiary.adress && (
-                        <p className="text-sm text-amber-600 truncate max-w-[200px]">
+                        <p className="text-sm text-[var(--accent-hover)] truncate max-w-[200px]">
                           {apiary.adress}
                         </p>
                       )}
@@ -93,7 +93,7 @@ export default async function BigårdarPage() {
                 </div>
 
                 <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1.5 text-amber-700">
+                  <div className="flex items-center gap-1.5 text-[var(--muted)]">
                     <Hexagon className="h-4 w-4" />
                     <span>
                       {apiary.colonies.length} aktiva /{" "}
@@ -103,7 +103,7 @@ export default async function BigårdarPage() {
                 </div>
 
                 {apiary.beskrivning && (
-                  <p className="mt-3 text-sm text-amber-600 line-clamp-2">
+                  <p className="mt-3 text-sm text-[var(--accent-hover)] line-clamp-2">
                     {apiary.beskrivning}
                   </p>
                 )}

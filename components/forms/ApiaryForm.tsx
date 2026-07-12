@@ -98,13 +98,13 @@ export default function ApiaryForm({ apiary }: ApiaryFormProps) {
       />
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-amber-800">
+        <label className="block text-sm font-medium text-[var(--foreground)]">
           Plats på karta
         </label>
-        <p className="text-sm text-amber-600">
+        <p className="text-sm text-[var(--accent-hover)]">
           Klicka på kartan för att välja position, eller dra markören för att justera.
         </p>
-        <div className="h-[400px] rounded-lg border border-amber-200 overflow-hidden">
+        <div className="h-[400px] rounded-lg border border-[var(--card-border)] overflow-hidden">
           <ApiaryMap
             latitude={formData.latitude}
             longitude={formData.longitude}
@@ -113,7 +113,7 @@ export default function ApiaryForm({ apiary }: ApiaryFormProps) {
           />
         </div>
         {formData.latitude && formData.longitude && (
-          <p className="text-sm text-amber-600">
+          <p className="text-sm text-[var(--accent-hover)]">
             Vald position: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
           </p>
         )}

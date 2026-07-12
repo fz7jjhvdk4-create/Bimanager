@@ -192,7 +192,7 @@ export default async function PaminnelserPage() {
       {/* Today's reminders */}
       {todayReminders.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-amber-600 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-[var(--accent-hover)] flex items-center gap-2">
             <Bell className="h-5 w-5" />
             Idag
           </h2>

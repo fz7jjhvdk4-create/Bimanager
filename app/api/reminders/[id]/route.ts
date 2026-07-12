@@ -1,21 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+import { withAuth } from "@/lib/auth";
+import { reminderUpdateSchema } from "@/lib/schemas";
 
 // GET single reminder
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-
+export const GET = withAuth(
+  "Kunde inte hämta påminnelse",
+  async (_request, { userId, params }) => {
     const reminder = await prisma.reminder.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
       include: {
         samhalle: {
           select: {
@@ -40,27 +33,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(reminder);
-  } catch (error) {
-    console.error("Error fetching reminder:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch reminder" },
-      { status: 500 }
-    );
   }
-}
+);
 
-// PUT update reminder
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-    const body = await request.json();
-
-    // Verify ownership
+// PUT update reminder (partiell — t.ex. bara { utford: true })
+export const PUT = withAuth(
+  "Kunde inte uppdatera påminnelse",
+  async (request, { userId, params }) => {
     const existing = await prisma.reminder.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
@@ -70,12 +51,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    const body = reminderUpdateSchema.parse(await request.json());
+
     const reminder = await prisma.reminder.update({
-      where: { id },
+      where: { id: params.id },
       data: {
         titel: body.titel,
         beskrivning: body.beskrivning,
-        datum: body.datum ? new Date(body.datum) : undefined,
+        datum: body.datum,
         paminnaFor: body.paminnaFor,
         kategori: body.kategori,
         samhalleId: body.samhalleId,
@@ -125,26 +108,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(reminder);
-  } catch (error) {
-    console.error("Error updating reminder:", error);
-    return NextResponse.json(
-      { error: "Failed to update reminder" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // DELETE reminder
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-
-    // Verify ownership
+export const DELETE = withAuth(
+  "Kunde inte ta bort påminnelse",
+  async (_request, { userId, params }) => {
     const existing = await prisma.reminder.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
@@ -155,15 +127,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     await prisma.reminder.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ message: "Påminnelse borttagen" });
-  } catch (error) {
-    console.error("Error deleting reminder:", error);
-    return NextResponse.json(
-      { error: "Failed to delete reminder" },
-      { status: 500 }
-    );
   }
-}
+);

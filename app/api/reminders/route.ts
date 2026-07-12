@@ -1,13 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { reminderSchema } from "@/lib/schemas";
 
 // GET all reminders for current user (with optional filters)
-export async function GET(request: NextRequest) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
+export const GET = withAuth(
+  "Kunde inte hämta påminnelser",
+  async (request, { userId }) => {
     const searchParams = request.nextUrl.searchParams;
     const upcoming = searchParams.get("upcoming");
     const samhalleId = searchParams.get("samhalleId");
@@ -60,51 +59,26 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(reminders);
-  } catch (error) {
-    console.error("Error fetching reminders:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch reminders" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // POST new reminder
-export async function POST(request: NextRequest) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const body = await request.json();
-    const {
-      titel,
-      beskrivning,
-      datum,
-      paminnaFor,
-      kategori,
-      samhalleId,
-      bigardId,
-      upprepning,
-    } = body;
-
-    if (!titel || !datum || !kategori) {
-      return NextResponse.json(
-        { error: "Titel, datum och kategori är obligatoriska" },
-        { status: 400 }
-      );
-    }
+export const POST = withAuth(
+  "Kunde inte skapa påminnelse",
+  async (request, { userId }) => {
+    const body = reminderSchema.parse(await request.json());
 
     const reminder = await prisma.reminder.create({
       data: {
         userId,
-        titel,
-        beskrivning: beskrivning || null,
-        datum: new Date(datum),
-        paminnaFor: paminnaFor || 1,
-        kategori,
-        samhalleId: samhalleId || null,
-        bigardId: bigardId || null,
-        upprepning: upprepning || null,
+        titel: body.titel,
+        beskrivning: body.beskrivning,
+        datum: body.datum,
+        paminnaFor: body.paminnaFor,
+        kategori: body.kategori,
+        samhalleId: body.samhalleId,
+        bigardId: body.bigardId,
+        upprepning: body.upprepning,
       },
       include: {
         samhalle: {
@@ -117,11 +91,5 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(reminder, { status: 201 });
-  } catch (error) {
-    console.error("Error creating reminder:", error);
-    return NextResponse.json(
-      { error: "Failed to create reminder" },
-      { status: 500 }
-    );
   }
-}
+);

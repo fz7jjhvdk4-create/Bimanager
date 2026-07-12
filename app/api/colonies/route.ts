@@ -1,13 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { colonySchema } from "@/lib/schemas";
 
 // GET all colonies for current user
-export async function GET(request: NextRequest) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
+export const GET = withAuth(
+  "Kunde inte hämta samhällen",
+  async (request, { userId }) => {
     const searchParams = request.nextUrl.searchParams;
     const bigardId = searchParams.get("bigardId");
     const status = searchParams.get("status");
@@ -33,46 +32,18 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(colonies);
-  } catch (error) {
-    console.error("Error fetching colonies:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch colonies" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // POST new colony
-export async function POST(request: NextRequest) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const body = await request.json();
-    const {
-      bigardId,
-      namn,
-      platsNummer,
-      drottningRas,
-      drottningAr,
-      drottningVingklippt,
-      kupaTyp,
-      ramTypYngelrum,
-      ramTypSkattlador,
-      status,
-      anteckningar,
-    } = body;
-
-    if (!bigardId || !namn) {
-      return NextResponse.json(
-        { error: "Bigård och namn är obligatoriska" },
-        { status: 400 }
-      );
-    }
+export const POST = withAuth(
+  "Kunde inte skapa samhälle",
+  async (request, { userId }) => {
+    const body = colonySchema.parse(await request.json());
 
     // Verify apiary exists and belongs to user
     const apiary = await prisma.apiary.findFirst({
-      where: { id: bigardId, userId },
+      where: { id: body.bigardId, userId },
     });
 
     if (!apiary) {
@@ -85,26 +56,20 @@ export async function POST(request: NextRequest) {
     const colony = await prisma.colony.create({
       data: {
         userId,
-        bigardId,
-        namn,
-        platsNummer: platsNummer || null,
-        drottningRas: drottningRas || null,
-        drottningAr: drottningAr || null,
-        drottningVingklippt: drottningVingklippt || false,
-        kupaTyp: kupaTyp || null,
-        ramTypYngelrum: ramTypYngelrum || null,
-        ramTypSkattlador: ramTypSkattlador || null,
-        status: status || "Aktiv",
-        anteckningar: anteckningar || null,
+        bigardId: body.bigardId,
+        namn: body.namn,
+        platsNummer: body.platsNummer,
+        drottningRas: body.drottningRas,
+        drottningAr: body.drottningAr,
+        drottningVingklippt: body.drottningVingklippt,
+        kupaTyp: body.kupaTyp,
+        ramTypYngelrum: body.ramTypYngelrum,
+        ramTypSkattlador: body.ramTypSkattlador,
+        status: body.status,
+        anteckningar: body.anteckningar,
       },
     });
 
     return NextResponse.json(colony, { status: 201 });
-  } catch (error) {
-    console.error("Error creating colony:", error);
-    return NextResponse.json(
-      { error: "Failed to create colony" },
-      { status: 500 }
-    );
   }
-}
+);

@@ -167,9 +167,9 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
                       drottningSynlig: e.target.checked,
                     }))
                   }
-                  className="h-4 w-4 rounded border-amber-300 text-amber-500 focus:ring-amber-500"
+                  className="h-4 w-4 rounded border-[var(--input-border)] text-[var(--accent)] focus:ring-amber-500"
                 />
-                <span className="text-sm text-amber-800">Drottning synlig</span>
+                <span className="text-sm text-[var(--foreground)]">Drottning synlig</span>
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -181,9 +181,9 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
                       drottningceller: e.target.checked,
                     }))
                   }
-                  className="h-4 w-4 rounded border-amber-300 text-amber-500 focus:ring-amber-500"
+                  className="h-4 w-4 rounded border-[var(--input-border)] text-[var(--accent)] focus:ring-amber-500"
                 />
-                <span className="text-sm text-amber-800">Drottningceller</span>
+                <span className="text-sm text-[var(--foreground)]">Drottningceller</span>
               </label>
             </div>
             <Textarea
@@ -488,7 +488,7 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
                 <button
                   key={type}
                   onClick={() => setSelectedType(type)}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-amber-100 hover:border-amber-300 hover:bg-amber-50 transition-colors text-center"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-[var(--card-border)] hover:border-[var(--input-border)] hover:bg-[var(--accent)]/10 transition-colors text-center"
                 >
                   <div
                     className={`flex h-12 w-12 items-center justify-center rounded-xl ${config.color}`}
@@ -496,8 +496,8 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
                     <Icon className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-amber-900">{type}</p>
-                    <p className="text-xs text-amber-600">{config.description}</p>
+                    <p className="font-medium text-[var(--foreground)]">{type}</p>
+                    <p className="text-xs text-[var(--accent-hover)]">{config.description}</p>
                   </div>
                 </button>
               );
@@ -508,7 +508,7 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
           <div className="space-y-6">
             <button
               onClick={() => setSelectedType(null)}
-              className="flex items-center gap-2 text-amber-600 hover:text-amber-700 text-sm"
+              className="flex items-center gap-2 text-[var(--accent-hover)] hover:text-[var(--accent)] text-sm"
             >
               <X className="h-4 w-4" />
               Välj annan typ

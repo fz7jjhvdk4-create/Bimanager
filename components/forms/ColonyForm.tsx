@@ -144,7 +144,7 @@ export default function ColonyForm({
 
       {/* Basic Info */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-amber-800 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wide">
           Grundinfo
         </h3>
 
@@ -196,7 +196,7 @@ export default function ColonyForm({
 
       {/* Queen Info */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-amber-800 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wide">
           Drottning
         </h3>
 
@@ -231,11 +231,11 @@ export default function ColonyForm({
                 drottningVingklippt: e.target.checked,
               }))
             }
-            className="h-4 w-4 rounded border-amber-300 text-amber-500 focus:ring-amber-500"
+            className="h-4 w-4 rounded border-[var(--input-border)] text-[var(--accent)] focus:ring-amber-500"
           />
           <label
             htmlFor="drottningVingklippt"
-            className="text-sm text-amber-800"
+            className="text-sm text-[var(--foreground)]"
           >
             Vingklippt
           </label>
@@ -244,7 +244,7 @@ export default function ColonyForm({
 
       {/* Hive Info */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-amber-800 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wide">
           Kupa
         </h3>
 

@@ -1,20 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+import { withAuth } from "@/lib/auth";
+import { eventUpdateSchema } from "@/lib/schemas";
 
 // GET single event
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
+export const GET = withAuth(
+  "Kunde inte hämta händelse",
+  async (_request, { userId, params }) => {
     const event = await prisma.event.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
       include: {
         samhalle: {
           include: {
@@ -25,85 +19,66 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Händelsen hittades inte" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(event);
-  } catch (error) {
-    console.error("Error fetching event:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch event" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // PUT update event
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-    const body = await request.json();
-    const { handelseTyp, datum, beskrivning, data } = body;
-
-    // Verify ownership
+export const PUT = withAuth(
+  "Kunde inte uppdatera händelse",
+  async (request, { userId, params }) => {
     const existing = await prisma.event.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Händelsen hittades inte" },
+        { status: 404 }
+      );
     }
 
+    const body = eventUpdateSchema.parse(await request.json());
+
     const event = await prisma.event.update({
-      where: { id },
+      where: { id: params.id },
       data: {
-        handelseTyp: handelseTyp || undefined,
-        datum: datum ? new Date(datum) : undefined,
-        beskrivning: beskrivning ?? null,
-        data: data ? JSON.stringify(data) : undefined,
+        handelseTyp: body.handelseTyp ?? undefined,
+        datum: body.datum ?? undefined,
+        beskrivning: body.beskrivning,
+        data: body.data ? JSON.stringify(body.data) : undefined,
       },
     });
 
     return NextResponse.json(event);
-  } catch (error) {
-    console.error("Error updating event:", error);
-    return NextResponse.json(
-      { error: "Failed to update event" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // DELETE event
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-
-    // Verify ownership
+export const DELETE = withAuth(
+  "Kunde inte ta bort händelse",
+  async (_request, { userId, params }) => {
     const existing = await prisma.event.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Händelsen hittades inte" },
+        { status: 404 }
+      );
     }
 
     await prisma.event.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting event:", error);
-    return NextResponse.json(
-      { error: "Failed to delete event" },
-      { status: 500 }
-    );
   }
-}
+);

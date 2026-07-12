@@ -1,13 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { eventSchema } from "@/lib/schemas";
+
+// Typspecifik payload när en avläggare ska skapa ett nytt samhälle
+interface AvlaggareData {
+  skapaNyttSamhalle?: boolean;
+  nyttSamhalleBigardId?: string;
+  nyttSamhalleNamn?: string;
+  nyttSamhalleDrottningRas?: string;
+  nyttSamhalleDrottningAr?: number;
+  nyttSamhalleId?: string;
+}
 
 // GET all events for current user (with optional filters)
-export async function GET(request: NextRequest) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
+export const GET = withAuth(
+  "Kunde inte hämta händelser",
+  async (request, { userId }) => {
     const searchParams = request.nextUrl.searchParams;
     const samhalleId = searchParams.get("samhalleId");
     const handelseTyp = searchParams.get("handelseTyp");
@@ -36,34 +45,19 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(events);
-  } catch (error) {
-    console.error("Error fetching events:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch events" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // POST new event
-export async function POST(request: NextRequest) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const body = await request.json();
-    const { samhalleId, handelseTyp, datum, beskrivning, data } = body;
-
-    if (!samhalleId || !handelseTyp || !datum) {
-      return NextResponse.json(
-        { error: "Samhälle, händelsetyp och datum är obligatoriska" },
-        { status: 400 }
-      );
-    }
+export const POST = withAuth(
+  "Kunde inte skapa händelse",
+  async (request, { userId }) => {
+    const body = eventSchema.parse(await request.json());
+    const data = (body.data ?? null) as (AvlaggareData & Record<string, unknown>) | null;
 
     // Verify colony exists and belongs to user
     const colony = await prisma.colony.findFirst({
-      where: { id: samhalleId, userId },
+      where: { id: body.samhalleId, userId },
       include: { bigard: true },
     });
 
@@ -76,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     // Om det är en avläggare och användaren vill skapa nytt samhälle
     let newColonyId: string | null = null;
-    if (handelseTyp === "Avläggare" && data?.skapaNyttSamhalle) {
+    if (body.handelseTyp === "Avläggare" && data?.skapaNyttSamhalle) {
       const targetBigardId = data.nyttSamhalleBigardId || colony.bigardId;
 
       // Skapa det nya samhället
@@ -91,8 +85,8 @@ export async function POST(request: NextRequest) {
           ramTypYngelrum: colony.ramTypYngelrum,
           ramTypSkattlador: colony.ramTypSkattlador,
           status: "Aktiv",
-          skapadFranId: samhalleId, // Koppla till ursprungssamhället
-          anteckningar: `Avläggare skapad ${new Date(datum).toLocaleDateString("sv-SE")} från ${colony.namn}`,
+          skapadFranId: body.samhalleId, // Koppla till ursprungssamhället
+          anteckningar: `Avläggare skapad ${body.datum.toLocaleDateString("sv-SE")} från ${colony.namn}`,
         },
       });
 
@@ -105,10 +99,10 @@ export async function POST(request: NextRequest) {
     const event = await prisma.event.create({
       data: {
         userId,
-        samhalleId,
-        handelseTyp,
-        datum: new Date(datum),
-        beskrivning: beskrivning || null,
+        samhalleId: body.samhalleId,
+        handelseTyp: body.handelseTyp,
+        datum: body.datum,
+        beskrivning: body.beskrivning,
         data: data ? JSON.stringify(data) : null,
       },
     });
@@ -117,15 +111,11 @@ export async function POST(request: NextRequest) {
       {
         ...event,
         newColonyId,
-        message: newColonyId ? "Händelse skapad och nytt samhälle skapat" : "Händelse skapad"
+        message: newColonyId
+          ? "Händelse skapad och nytt samhälle skapat"
+          : "Händelse skapad",
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Error creating event:", error);
-    return NextResponse.json(
-      { error: "Failed to create event" },
-      { status: 500 }
-    );
   }
-}
+);

@@ -13,8 +13,8 @@ export default function ApiaryMapView({
 }: ApiaryMapViewProps) {
   if (!latitude || !longitude) {
     return (
-      <div className="w-full h-full bg-amber-50 flex items-center justify-center">
-        <p className="text-amber-600">Ingen position angiven</p>
+      <div className="w-full h-full bg-[var(--accent)]/10 flex items-center justify-center">
+        <p className="text-[var(--accent-hover)]">Ingen position angiven</p>
       </div>
     );
   }

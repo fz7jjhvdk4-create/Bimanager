@@ -1,13 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { apiarySchema } from "@/lib/schemas";
 
 // GET all apiaries for current user
-export async function GET() {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
+export const GET = withAuth(
+  "Kunde inte hämta bigårdar",
+  async (_request, { userId }) => {
     const apiaries = await prisma.apiary.findMany({
       where: { userId },
       include: {
@@ -32,45 +31,26 @@ export async function GET() {
     }));
 
     return NextResponse.json(apiariesWithStats);
-  } catch (error) {
-    console.error("Error fetching apiaries:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch apiaries" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // POST new apiary
-export async function POST(request: NextRequest) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const body = await request.json();
-    const { namn, adress, latitude, longitude, beskrivning } = body;
-
-    if (!namn) {
-      return NextResponse.json({ error: "Namn is required" }, { status: 400 });
-    }
+export const POST = withAuth(
+  "Kunde inte skapa bigård",
+  async (request, { userId }) => {
+    const body = apiarySchema.parse(await request.json());
 
     const apiary = await prisma.apiary.create({
       data: {
         userId,
-        namn,
-        adress: adress || null,
-        latitude: latitude || null,
-        longitude: longitude || null,
-        beskrivning: beskrivning || null,
+        namn: body.namn,
+        adress: body.adress,
+        latitude: body.latitude,
+        longitude: body.longitude,
+        beskrivning: body.beskrivning,
       },
     });
 
     return NextResponse.json(apiary, { status: 201 });
-  } catch (error) {
-    console.error("Error creating apiary:", error);
-    return NextResponse.json(
-      { error: "Failed to create apiary" },
-      { status: 500 }
-    );
   }
-}
+);

@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { accountingSchema } from "@/lib/schemas";
+import { beraknaMoms } from "@/lib/accounting";
 
 // GET - Hämta en transaktion
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
+export const GET = withAuth(
+  "Kunde inte hämta transaktion",
+  async (request, { userId, params }) => {
     const transaction = await prisma.accounting.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
       include: {
         faktura: true,
       },
@@ -27,30 +23,15 @@ export async function GET(
     }
 
     return NextResponse.json(transaction);
-  } catch (error) {
-    console.error("Error fetching transaction:", error);
-    return NextResponse.json(
-      { error: "Kunde inte hämta transaktion" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // PUT - Uppdatera transaktion
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-    const body = await request.json();
-
-    // Verify ownership
+export const PUT = withAuth(
+  "Kunde inte uppdatera transaktion",
+  async (request, { userId, params }) => {
     const existing = await prisma.accounting.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
@@ -60,65 +41,40 @@ export async function PUT(
       );
     }
 
-    const {
-      datum,
-      handelseTyp,
-      beskrivning,
-      beloppExMoms,
-      momsSats = 0.12,
-      mottagare,
-      antalBurkar,
-      prisPerEnhet,
-      fakturaNummer,
-      notering,
-    } = body;
-
-    // Beräkna momsbelopp och totalbelopp
-    const momsBelopp = beloppExMoms * momsSats;
-    const beloppInklMoms = beloppExMoms + momsBelopp;
+    const body = accountingSchema.parse(await request.json());
+    const { momsBelopp, beloppInklMoms } = beraknaMoms(
+      body.beloppExMoms,
+      body.momsSats
+    );
 
     const transaction = await prisma.accounting.update({
-      where: { id },
+      where: { id: params.id },
       data: {
-        datum: new Date(datum),
-        handelseTyp,
-        beskrivning,
-        beloppExMoms,
-        momsSats,
+        datum: body.datum,
+        handelseTyp: body.handelseTyp,
+        beskrivning: body.beskrivning,
+        beloppExMoms: body.beloppExMoms,
+        momsSats: body.momsSats,
         momsBelopp,
         beloppInklMoms,
-        mottagare,
-        antalBurkar,
-        prisPerEnhet,
-        fakturaNummer,
-        notering,
+        mottagare: body.mottagare,
+        antalBurkar: body.antalBurkar,
+        prisPerEnhet: body.prisPerEnhet,
+        fakturaNummer: body.fakturaNummer,
+        notering: body.notering,
       },
     });
 
     return NextResponse.json(transaction);
-  } catch (error) {
-    console.error("Error updating transaction:", error);
-    return NextResponse.json(
-      { error: "Kunde inte uppdatera transaktion" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // DELETE - Ta bort transaktion
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const { id } = await params;
-
-    // Verify ownership
+export const DELETE = withAuth(
+  "Kunde inte ta bort transaktion",
+  async (request, { userId, params }) => {
     const existing = await prisma.accounting.findFirst({
-      where: { id, userId },
+      where: { id: params.id, userId },
     });
 
     if (!existing) {
@@ -129,15 +85,9 @@ export async function DELETE(
     }
 
     await prisma.accounting.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ message: "Transaktion borttagen" });
-  } catch (error) {
-    console.error("Error deleting transaction:", error);
-    return NextResponse.json(
-      { error: "Kunde inte ta bort transaktion" },
-      { status: 500 }
-    );
   }
-}
+);

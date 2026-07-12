@@ -115,7 +115,7 @@ export default function InstallningarPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-amber-600">Laddar...</p>
+        <p className="text-[var(--accent-hover)]">Laddar...</p>
       </div>
     );
   }
@@ -124,19 +124,19 @@ export default function InstallningarPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Settings className="h-8 w-8 text-amber-600" />
+        <Settings className="h-8 w-8 text-[var(--accent-hover)]" />
         <div>
-          <h1 className="text-2xl font-bold text-amber-900">Inställningar</h1>
-          <p className="text-amber-600">Hantera dina företagsuppgifter</p>
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Inställningar</h1>
+          <p className="text-[var(--accent-hover)]">Hantera dina företagsuppgifter</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Company Info */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
           <div className="flex items-center gap-2 mb-4">
-            <Building className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Företagsinformation</h2>
+            <Building className="h-5 w-5 text-[var(--accent-hover)]" />
+            <h2 className="font-semibold text-[var(--foreground)]">Företagsinformation</h2>
           </div>
 
           <Input
@@ -201,10 +201,10 @@ export default function InstallningarPage() {
         </div>
 
         {/* Payment Info */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
           <div className="flex items-center gap-2 mb-4">
-            <CreditCard className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Betalningsinformation</h2>
+            <CreditCard className="h-5 w-5 text-[var(--accent-hover)]" />
+            <h2 className="font-semibold text-[var(--foreground)]">Betalningsinformation</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -231,11 +231,11 @@ export default function InstallningarPage() {
               name="momsRegistrerad"
               checked={formData.momsRegistrerad}
               onChange={handleChange}
-              className="h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+              className="h-4 w-4 rounded border-[var(--input-border)] text-[var(--accent-hover)] focus:ring-amber-500"
             />
             <label
               htmlFor="momsRegistrerad"
-              className="text-sm font-medium text-amber-900"
+              className="text-sm font-medium text-[var(--foreground)]"
             >
               Momsregistrerad
             </label>
@@ -243,10 +243,10 @@ export default function InstallningarPage() {
         </div>
 
         {/* Invoice Settings */}
-        <div className="bg-white rounded-xl p-6 shadow-sm ring-1 ring-amber-100 space-y-4">
+        <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)] space-y-4">
           <div className="flex items-center gap-2 mb-4">
-            <FileText className="h-5 w-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-900">Fakturainställningar</h2>
+            <FileText className="h-5 w-5 text-[var(--accent-hover)]" />
+            <h2 className="font-semibold text-[var(--foreground)]">Fakturainställningar</h2>
           </div>
 
           <Input
@@ -257,7 +257,7 @@ export default function InstallningarPage() {
             onChange={handleChange}
             min="1"
           />
-          <p className="text-sm text-amber-600">
+          <p className="text-sm text-[var(--accent-hover)]">
             Nästa faktura kommer att få numret F
             {formData.nastaFakturaNummer.toString().padStart(4, "0")}
           </p>

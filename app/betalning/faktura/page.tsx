@@ -13,6 +13,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Customer {
   id: string;
@@ -37,6 +38,7 @@ export default function FakturaPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInvoices();
@@ -59,15 +61,16 @@ export default function FakturaPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Är du säker på att du vill ta bort denna faktura?")) return;
-
-    try {
-      await fetch(`/api/invoices/${id}`, { method: "DELETE" });
-      fetchInvoices();
-    } catch (error) {
-      console.error("Error deleting invoice:", error);
+  async function handleDelete() {
+    if (!deleteId) return;
+    const res = await fetch(`/api/invoices/${deleteId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || "Kunde inte ta bort faktura");
     }
+    fetchInvoices();
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
@@ -335,8 +338,10 @@ export default function FakturaPage() {
                             </button>
                           )}
                           <button
-                            onClick={() => handleDelete(invoice.id)}
+                            onClick={() => setDeleteId(invoice.id)}
                             className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded"
+                            title="Ta bort"
+                            aria-label="Ta bort faktura"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -350,6 +355,19 @@ export default function FakturaPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Ta bort faktura"
+        message={
+          <p>
+            Är du säker på att du vill ta bort denna faktura? Eventuella
+            kopplade kassaboksposter tas också bort. Detta går inte att ångra.
+          </p>
+        }
+      />
     </div>
   );
 }

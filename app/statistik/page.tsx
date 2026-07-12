@@ -174,14 +174,14 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-amber-600">Laddar statistik...</p>
+        <p className="text-[var(--accent-hover)]">Laddar statistik...</p>
       </div>
     );
   }
 
   if (!stats) {
     return (
-      <div className="text-center py-8 text-amber-600">
+      <div className="text-center py-8 text-[var(--accent-hover)]">
         Kunde inte ladda statistik
       </div>
     );
@@ -223,7 +223,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart3 className="h-8 w-8 text-amber-500" />
+          <BarChart3 className="h-8 w-8 text-[var(--accent)]" />
           <div>
             <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Statistik & Rapporter
@@ -254,7 +254,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-2">
-            <Hexagon className="h-5 w-5 text-amber-500" />
+            <Hexagon className="h-5 w-5 text-[var(--accent)]" />
             <span className="text-sm text-[var(--muted)]">Aktiva samhällen</span>
           </div>
           <p className="text-3xl font-bold text-[var(--foreground)]">
@@ -300,7 +300,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
         {/* Sålda burkar per månad */}
         <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <Package className="h-5 w-5 text-amber-500" />
+            <Package className="h-5 w-5 text-[var(--accent)]" />
             <h2 className="font-semibold text-[var(--foreground)]">Sålda burkar per månad</h2>
           </div>
           <div className="relative flex items-end gap-1 h-40">
@@ -373,7 +373,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
         {/* Ekonomi per månad */}
         <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-amber-500" />
+            <TrendingUp className="h-5 w-5 text-[var(--accent)]" />
             <h2 className="font-semibold text-[var(--foreground)]">Ekonomi per månad</h2>
           </div>
           <div className="relative flex items-end gap-1 h-40">
@@ -472,7 +472,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
         {/* Händelser per typ */}
         <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-amber-500" />
+            <Calendar className="h-5 w-5 text-[var(--accent)]" />
             <h2 className="font-semibold text-[var(--foreground)]">Händelser per typ</h2>
           </div>
           <div className="space-y-3">
@@ -519,7 +519,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
         {/* Skörd per bigård */}
         <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
           <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-amber-500" />
+            <MapPin className="h-5 w-5 text-[var(--accent)]" />
             <h2 className="font-semibold text-[var(--foreground)]">Skörd per bigård</h2>
           </div>
           {stats.harvest.byApiary.length > 0 ? (
@@ -562,7 +562,7 @@ Genererad: ${new Date().toLocaleString("sv-SE")}
       {/* Historisk skörd */}
       <div className="bg-[var(--card-bg)] rounded-xl p-6 shadow-sm ring-1 ring-[var(--card-border)]">
         <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="h-5 w-5 text-amber-500" />
+          <BarChart3 className="h-5 w-5 text-[var(--accent)]" />
           <h2 className="font-semibold text-[var(--foreground)]">
             Historisk skörd (senaste 5 åren)
           </h2>

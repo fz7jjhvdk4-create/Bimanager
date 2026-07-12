@@ -21,8 +21,8 @@ const MapComponent = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full bg-amber-50 flex items-center justify-center rounded-lg">
-        <div className="text-amber-600">Laddar karta...</div>
+      <div className="w-full h-full bg-[var(--accent)]/10 flex items-center justify-center rounded-lg">
+        <div className="text-[var(--accent-hover)]">Laddar karta...</div>
       </div>
     ),
   }

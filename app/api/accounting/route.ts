@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
+import { accountingSchema } from "@/lib/schemas";
+import { beraknaMoms } from "@/lib/accounting";
 
 // GET - Hämta alla transaktioner för current user
-export async function GET(request: Request) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
+export const GET = withAuth(
+  "Kunde inte hämta transaktioner",
+  async (request, { userId }) => {
     const { searchParams } = new URL(request.url);
     const year = searchParams.get("year");
     const type = searchParams.get("type");
@@ -36,64 +36,37 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(transactions);
-  } catch (error) {
-    console.error("Error fetching transactions:", error);
-    return NextResponse.json(
-      { error: "Kunde inte hämta transaktioner" },
-      { status: 500 }
-    );
   }
-}
+);
 
 // POST - Skapa ny transaktion
-export async function POST(request: Request) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
-    const body = await request.json();
-
-    const {
-      datum,
-      handelseTyp,
-      beskrivning,
-      beloppExMoms,
-      momsSats = 0.12,
-      mottagare,
-      antalBurkar,
-      prisPerEnhet,
-      fakturaNummer,
-      notering,
-    } = body;
-
-    // Beräkna momsbelopp och totalbelopp (avrunda till 2 decimaler)
-    const momsBelopp = Math.round(beloppExMoms * momsSats * 100) / 100;
-    const beloppInklMoms = Math.round((beloppExMoms + momsBelopp) * 100) / 100;
+export const POST = withAuth(
+  "Kunde inte skapa transaktion",
+  async (request, { userId }) => {
+    const body = accountingSchema.parse(await request.json());
+    const { momsBelopp, beloppInklMoms } = beraknaMoms(
+      body.beloppExMoms,
+      body.momsSats
+    );
 
     const transaction = await prisma.accounting.create({
       data: {
         userId,
-        datum: new Date(datum),
-        handelseTyp,
-        beskrivning,
-        beloppExMoms,
-        momsSats,
+        datum: body.datum,
+        handelseTyp: body.handelseTyp,
+        beskrivning: body.beskrivning,
+        beloppExMoms: body.beloppExMoms,
+        momsSats: body.momsSats,
         momsBelopp,
         beloppInklMoms,
-        mottagare,
-        antalBurkar,
-        prisPerEnhet,
-        fakturaNummer,
-        notering,
+        mottagare: body.mottagare,
+        antalBurkar: body.antalBurkar,
+        prisPerEnhet: body.prisPerEnhet,
+        fakturaNummer: body.fakturaNummer,
+        notering: body.notering,
       },
     });
 
     return NextResponse.json(transaction, { status: 201 });
-  } catch (error) {
-    console.error("Error creating transaction:", error);
-    return NextResponse.json(
-      { error: "Kunde inte skapa transaktion" },
-      { status: 500 }
-    );
   }
-}
+);

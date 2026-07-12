@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
+import { withAuth } from "@/lib/auth";
 
 const MONTHS = [
   "jan.", "feb.", "mar.", "apr.", "maj", "jun.",
@@ -11,11 +11,9 @@ function getMonthKey(date: Date): string {
   return MONTHS[new Date(date).getMonth()];
 }
 
-export async function GET(request: Request) {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) return unauthorizedResponse();
-
+export const GET = withAuth(
+  "Kunde inte hämta statistik",
+  async (request, { userId }) => {
     const { searchParams } = new URL(request.url);
     const year = searchParams.get("year") || new Date().getFullYear().toString();
 
@@ -251,11 +249,5 @@ export async function GET(request: Request) {
       yearlyStats,
       queenStats,
     });
-  } catch (error) {
-    console.error("Error fetching statistics:", error);
-    return NextResponse.json(
-      { error: "Kunde inte hämta statistik" },
-      { status: 500 }
-    );
   }
-}
+);

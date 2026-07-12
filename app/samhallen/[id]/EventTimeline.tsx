@@ -14,6 +14,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { EventType } from "@/types";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Event {
   id: string;
@@ -49,7 +50,7 @@ const eventColors: Record<EventType, string> = {
 
 function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) {
   const [expanded, setExpanded] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const Icon = eventIcons[event.handelseTyp as EventType] || FileText;
   const color = eventColors[event.handelseTyp as EventType] || "bg-stone-500";
@@ -64,20 +65,14 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
   }
 
   const handleDelete = async () => {
-    if (!confirm("Är du säker på att du vill ta bort denna händelse?")) return;
-
-    setDeleting(true);
-    try {
-      const response = await fetch(`/api/events/${event.id}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        onDelete();
-      }
-    } catch {
-      // ignore errors
+    const response = await fetch(`/api/events/${event.id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      throw new Error(data?.error || "Kunde inte ta bort händelse");
     }
-    setDeleting(false);
+    onDelete();
   };
 
   const renderEventDetails = () => {
@@ -87,24 +82,24 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
           <div className="grid grid-cols-2 gap-2 text-sm">
             {parsedData.styrka && (
               <div>
-                <span className="text-amber-600">Styrka:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Styrka:</span>{" "}
                 <span className="font-medium">{String(parsedData.styrka)}</span>
               </div>
             )}
             {parsedData.temperament && (
               <div>
-                <span className="text-amber-600">Temperament:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Temperament:</span>{" "}
                 <span className="font-medium">{String(parsedData.temperament)}</span>
               </div>
             )}
             <div>
-              <span className="text-amber-600">Drottning synlig:</span>{" "}
+              <span className="text-[var(--accent-hover)]">Drottning synlig:</span>{" "}
               <span className="font-medium">
                 {parsedData.drottningSynlig ? "Ja" : "Nej"}
               </span>
             </div>
             <div>
-              <span className="text-amber-600">Drottningceller:</span>{" "}
+              <span className="text-[var(--accent-hover)]">Drottningceller:</span>{" "}
               <span className="font-medium">
                 {parsedData.drottningceller ? "Ja" : "Nej"}
               </span>
@@ -117,13 +112,13 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
           <div className="grid grid-cols-2 gap-2 text-sm">
             {parsedData.mangdKg && (
               <div>
-                <span className="text-amber-600">Mängd:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Mängd:</span>{" "}
                 <span className="font-medium">{parsedData.mangdKg} kg</span>
               </div>
             )}
             {parsedData.antalRamar && (
               <div>
-                <span className="text-amber-600">Antal ramar:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Antal ramar:</span>{" "}
                 <span className="font-medium">{parsedData.antalRamar}</span>
               </div>
             )}
@@ -135,19 +130,19 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
           <div className="grid grid-cols-2 gap-2 text-sm">
             {parsedData.antalRamar && (
               <div>
-                <span className="text-amber-600">Antal ramar:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Antal ramar:</span>{" "}
                 <span className="font-medium">{parsedData.antalRamar}</span>
               </div>
             )}
             {parsedData.fodermangdKg && (
               <div>
-                <span className="text-amber-600">Foder:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Foder:</span>{" "}
                 <span className="font-medium">{parsedData.fodermangdKg} kg</span>
               </div>
             )}
             {parsedData.allmanntSkick && (
               <div>
-                <span className="text-amber-600">Skick:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Skick:</span>{" "}
                 <span className="font-medium">{String(parsedData.allmanntSkick)}</span>
               </div>
             )}
@@ -159,13 +154,13 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
           <div className="space-y-1 text-sm">
             {parsedData.atgardstyp && (
               <div>
-                <span className="text-amber-600">Typ:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Typ:</span>{" "}
                 <span className="font-medium">{String(parsedData.atgardstyp)}</span>
               </div>
             )}
             {parsedData.metodPreparat && (
               <div>
-                <span className="text-amber-600">Metod/preparat:</span>{" "}
+                <span className="text-[var(--accent-hover)]">Metod/preparat:</span>{" "}
                 <span className="font-medium">{String(parsedData.metodPreparat)}</span>
               </div>
             )}
@@ -184,7 +179,7 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
   return (
     <div className="relative pl-8">
       {/* Timeline line */}
-      <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-amber-100" />
+      <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-[var(--accent)]/20" />
 
       {/* Icon */}
       <div
@@ -194,14 +189,14 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
       </div>
 
       {/* Card */}
-      <div className="bg-stone-50 rounded-lg p-4 mb-4">
+      <div className="bg-[var(--background)] rounded-lg p-4 mb-4">
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-amber-900">
+              <span className="font-medium text-[var(--foreground)]">
                 {event.handelseTyp}
               </span>
-              <span className="text-sm text-amber-500">
+              <span className="text-sm text-[var(--accent)]">
                 {new Date(event.datum).toLocaleDateString("sv-SE")}
               </span>
             </div>
@@ -210,7 +205,7 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
             {(hasDetails || hasNotes) && (
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="p-1 text-amber-400 hover:text-amber-600 rounded"
+                className="p-1 text-[var(--accent)] hover:text-[var(--accent-hover)] rounded"
               >
                 {expanded ? (
                   <ChevronUp className="h-4 w-4" />
@@ -220,9 +215,10 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
               </button>
             )}
             <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="p-1 text-red-400 hover:text-red-600 rounded disabled:opacity-50"
+              onClick={() => setShowDeleteDialog(true)}
+              className="p-1 text-red-400 hover:text-red-600 rounded"
+              title="Ta bort"
+              aria-label="Ta bort händelse"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -234,8 +230,8 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
             {hasDetails && renderEventDetails()}
             {hasNotes && (
               <div className="text-sm">
-                <span className="text-amber-600">Anteckningar:</span>
-                <p className="mt-1 text-amber-800 whitespace-pre-wrap">
+                <span className="text-[var(--accent-hover)]">Anteckningar:</span>
+                <p className="mt-1 text-[var(--foreground)] whitespace-pre-wrap">
                   {String(parsedData.anteckningar)}
                 </p>
               </div>
@@ -243,6 +239,21 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDelete}
+        title="Ta bort händelse"
+        message={
+          <p>
+            Är du säker på att du vill ta bort händelsen{" "}
+            <strong>{event.handelseTyp}</strong> från{" "}
+            {new Date(event.datum).toLocaleDateString("sv-SE")}? Detta går inte
+            att ångra.
+          </p>
+        }
+      />
     </div>
   );
 }
@@ -257,8 +268,8 @@ export default function EventTimeline({ events, colonyId }: EventTimelineProps) 
   if (events.length === 0) {
     return (
       <div className="text-center py-8">
-        <FileText className="h-12 w-12 text-amber-200 mx-auto mb-3" />
-        <p className="text-amber-600">
+        <FileText className="h-12 w-12 text-[var(--accent)]/40 mx-auto mb-3" />
+        <p className="text-[var(--accent-hover)]">
           Inga händelser registrerade för detta samhälle ännu.
         </p>
       </div>

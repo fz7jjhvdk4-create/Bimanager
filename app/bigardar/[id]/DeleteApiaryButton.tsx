@@ -48,7 +48,7 @@ export default function DeleteApiaryButton({
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-red-600 font-medium ring-1 ring-red-200 hover:bg-red-50 transition-colors"
+        className="inline-flex items-center gap-2 rounded-lg bg-[var(--card-bg)] px-4 py-2 text-red-600 font-medium ring-1 ring-red-200 hover:bg-red-50 transition-colors"
       >
         <Trash2 className="h-4 w-4" />
         Ta bort
@@ -61,7 +61,7 @@ export default function DeleteApiaryButton({
       >
         <div className="space-y-4">
           {hasColonies ? (
-            <div className="p-4 rounded-lg bg-amber-50 text-amber-800">
+            <div className="p-4 rounded-lg bg-[var(--accent)]/10 text-[var(--foreground)]">
               <p className="font-medium">Kan inte ta bort</p>
               <p className="text-sm mt-1">
                 Denna bigård har samhällen. Ta bort eller flytta samhällena först.
@@ -69,7 +69,7 @@ export default function DeleteApiaryButton({
             </div>
           ) : (
             <>
-              <p className="text-amber-700">
+              <p className="text-[var(--muted)]">
                 Är du säker på att du vill ta bort bigården{" "}
                 <strong>{apiaryName}</strong>? Detta går inte att ångra.
               </p>
