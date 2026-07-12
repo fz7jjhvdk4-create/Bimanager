@@ -20,12 +20,22 @@ export const GET = withAuth(
   async (request, { userId }) => {
     const searchParams = request.nextUrl.searchParams;
     const samhalleId = searchParams.get("samhalleId");
+    const bigardId = searchParams.get("bigardId");
     const handelseTyp = searchParams.get("handelseTyp");
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
     const limit = searchParams.get("limit");
 
     const where: Record<string, unknown> = { userId };
     if (samhalleId) where.samhalleId = samhalleId;
+    if (bigardId) where.samhalle = { bigardId };
     if (handelseTyp) where.handelseTyp = handelseTyp;
+    if (from || to) {
+      where.datum = {
+        ...(from ? { gte: new Date(from) } : {}),
+        ...(to ? { lte: new Date(`${to}T23:59:59`) } : {}),
+      };
+    }
 
     const events = await prisma.event.findMany({
       where,

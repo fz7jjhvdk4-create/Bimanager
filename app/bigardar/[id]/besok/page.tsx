@@ -19,6 +19,7 @@ import {
   type StrengthLevel,
   type TemperamentLevel,
 } from "@/types";
+import { arNatverksfel, laggIKo } from "@/lib/offlineQueue";
 
 interface Colony {
   id: string;
@@ -137,6 +138,7 @@ export default function BesokPage({
   const [forra, setForra] = useState<ForraInspektionen | null>(null);
   const [sparar, setSparar] = useState(false);
   const [antalSparade, setAntalSparade] = useState(0);
+  const [antalKoade, setAntalKoade] = useState(0);
   const [klar, setKlar] = useState(false);
 
   useEffect(() => {
@@ -211,25 +213,28 @@ export default function BesokPage({
     if (!aktuellt) return;
     setSparar(true);
     setFel(null);
-    try {
-      const data: Record<string, unknown> = {
-        drottningSynlig: inspektion.drottningSynlig,
-        drottningceller: inspektion.drottningceller,
-      };
-      if (inspektion.styrka) data.styrka = inspektion.styrka;
-      if (inspektion.temperament) data.temperament = inspektion.temperament;
-      if (inspektion.anteckningar.trim())
-        data.anteckningar = inspektion.anteckningar.trim();
 
+    const data: Record<string, unknown> = {
+      drottningSynlig: inspektion.drottningSynlig,
+      drottningceller: inspektion.drottningceller,
+    };
+    if (inspektion.styrka) data.styrka = inspektion.styrka;
+    if (inspektion.temperament) data.temperament = inspektion.temperament;
+    if (inspektion.anteckningar.trim())
+      data.anteckningar = inspektion.anteckningar.trim();
+
+    const payload = {
+      samhalleId: aktuellt.id,
+      handelseTyp: "Inspektion",
+      datum,
+      data,
+    };
+
+    try {
       const res = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          samhalleId: aktuellt.id,
-          handelseTyp: "Inspektion",
-          datum,
-          data,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const svar = await res.json().catch(() => null);
@@ -238,7 +243,15 @@ export default function BesokPage({
       setAntalSparade((n) => n + 1);
       gaTill(index + 1);
     } catch (e) {
-      setFel(e instanceof Error ? e.message : "Något gick fel");
+      if (arNatverksfel(e)) {
+        // Ingen täckning vid bigården — köa lokalt och fortsätt besöket
+        laggIKo(payload, aktuellt.namn);
+        setAntalKoade((n) => n + 1);
+        setAntalSparade((n) => n + 1);
+        gaTill(index + 1);
+      } else {
+        setFel(e instanceof Error ? e.message : "Något gick fel");
+      }
     } finally {
       setSparar(false);
     }
@@ -300,6 +313,8 @@ export default function BesokPage({
         <p className="text-[var(--muted)]">
           {antalSparade} av {aktivaSamhallen.length} samhällen inspekterade i{" "}
           {apiary.namn}.
+          {antalKoade > 0 &&
+            ` ${antalKoade} sparades offline och synkas när du har täckning igen.`}
         </p>
         <Link
           href={`/bigardar/${apiary.id}`}

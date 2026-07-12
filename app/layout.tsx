@@ -5,6 +5,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import SessionProvider from "@/components/providers/SessionProvider";
+import OfflineSyncBanner from "@/components/OfflineSyncBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -48,6 +49,7 @@ export default function RootLayout({
             <main className="lg:pl-64 min-h-screen">
               <div className="p-4 lg:p-8 pt-20 lg:pt-20">{children}</div>
             </main>
+            <OfflineSyncBanner />
           </ThemeProvider>
         </SessionProvider>
       </body>

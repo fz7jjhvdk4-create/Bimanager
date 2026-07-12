@@ -2,21 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Bug,
-  ClipboardCheck,
-  Droplets,
-  Scale,
-  Snowflake,
-  GitBranch,
-  Heart,
-  FileText,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { FileText, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { EventType } from "@/types";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { eventColors, eventIcons } from "@/components/events/eventStyle";
 
 interface Event {
   id: string;
@@ -31,28 +20,6 @@ interface EventTimelineProps {
   events: Event[];
   colonyId: string;
 }
-
-const eventIcons: Record<EventType, React.ElementType> = {
-  Inspektion: ClipboardCheck,
-  Varroamätning: Bug,
-  Utfodring: Droplets,
-  Skörd: Scale,
-  Invintring: Snowflake,
-  Avläggare: GitBranch,
-  Hälsoåtgärd: Heart,
-  Anteckning: FileText,
-};
-
-const eventColors: Record<EventType, string> = {
-  Inspektion: "bg-blue-500",
-  Varroamätning: "bg-orange-500",
-  Utfodring: "bg-lime-600",
-  Skörd: "bg-yellow-500",
-  Invintring: "bg-cyan-500",
-  Avläggare: "bg-purple-500",
-  Hälsoåtgärd: "bg-rose-500",
-  Anteckning: "bg-stone-500",
-};
 
 function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) {
   const [expanded, setExpanded] = useState(false);

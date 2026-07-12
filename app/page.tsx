@@ -2,19 +2,25 @@ import { MapPin, Hexagon, Scale, Calendar } from "lucide-react";
 import prisma from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import Link from "next/link";
+import OnboardingChecklist from "./OnboardingChecklist";
 
 export const dynamic = "force-dynamic";
 
 async function getStats(userId: string) {
-  const [apiaryCount, colonyCount, activeColonyCount, events] =
+  const [apiaryCount, colonyCount, activeColonyCount, eventCount, events, user] =
     await Promise.all([
       prisma.apiary.count({ where: { userId } }),
       prisma.colony.count({ where: { userId } }),
       prisma.colony.count({ where: { userId, status: "Aktiv" } }),
+      prisma.event.count({ where: { userId } }),
       prisma.event.findMany({
         where: { userId, handelseTyp: "Skörd" },
         orderBy: { datum: "desc" },
         take: 100,
+      }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true },
       }),
     ]);
 
@@ -34,7 +40,14 @@ async function getStats(userId: string) {
     }
   });
 
-  return { apiaryCount, colonyCount, activeColonyCount, totalHarvest };
+  return {
+    apiaryCount,
+    colonyCount,
+    activeColonyCount,
+    eventCount,
+    totalHarvest,
+    userName: user?.name ?? null,
+  };
 }
 
 async function getRecentEvents(userId: string) {
@@ -92,11 +105,20 @@ export default async function Dashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-[var(--foreground)]">Krattorps bigårdar</h1>
+        <h1 className="text-3xl font-bold text-[var(--foreground)]">
+          {stats.userName ? `Hej ${stats.userName.split(" ")[0]}!` : "Dashboard"}
+        </h1>
         <p className="text-[var(--muted)] mt-1">
           Välkommen till BiManager - din biodlingsassistent
         </p>
       </div>
+
+      {/* Kom igång-guide för nya konton */}
+      <OnboardingChecklist
+        apiaryCount={stats.apiaryCount}
+        colonyCount={stats.colonyCount}
+        eventCount={stats.eventCount}
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

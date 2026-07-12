@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { genereraSie4, tillPc8Bytes } from "@/lib/sie";
 
 interface Transaction {
   id: string;
@@ -91,6 +92,38 @@ export default function KassabokPage() {
   const years = Array.from({ length: 5 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
   );
+
+  async function exportToSIE() {
+    // Exportera hela året oavsett typfilter — bokföringen behöver allt
+    const res = await fetch(`/api/accounting?year=${selectedYear}`);
+    if (!res.ok) return;
+    const alla: Transaction[] = await res.json();
+    if (alla.length === 0) return;
+
+    const settingsRes = await fetch("/api/settings");
+    const settings = settingsRes.ok ? await settingsRes.json() : null;
+
+    const sie = genereraSie4({
+      ar: parseInt(selectedYear),
+      foretag: {
+        namn: settings?.foretagsnamn,
+        orgnr: settings?.organisationsnummer,
+      },
+      transaktioner: alla,
+    });
+
+    const blob = new Blob([tillPc8Bytes(sie) as BlobPart], {
+      type: "application/octet-stream",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bimanager-kassabok-${selectedYear}.se`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 
   function exportToCSV() {
     if (transactions.length === 0) return;
@@ -184,6 +217,15 @@ export default function KassabokPage() {
           >
             <Download className="h-4 w-4 mr-2" />
             Exportera CSV
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={exportToSIE}
+            disabled={transactions.length === 0}
+            title="SIE 4-fil för import i bokföringsprogram"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Exportera SIE
           </Button>
           <Link href="/kassabok/ny">
             <Button>
