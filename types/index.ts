@@ -1,6 +1,8 @@
 // Event types
 export const EVENT_TYPES = [
   "Inspektion",
+  "Varroamätning",
+  "Utfodring",
   "Skörd",
   "Invintring",
   "Avläggare",
@@ -68,6 +70,50 @@ export interface SplitData {
 export interface HealthActionData {
   atgardstyp: HealthActionType;
   metodPreparat?: string;
+  batchnummer?: string; // preparatets batchnr — krävs i behandlingsjournalen
+  karensDagar?: number; // karenstid innan skörd
+  anteckningar?: string;
+}
+
+// Varroa measurement
+export const VARROA_METHODS = [
+  "Nedfall",
+  "Alkoholtvätt",
+  "Sockerprov",
+] as const;
+export type VarroaMethod = (typeof VARROA_METHODS)[number];
+
+export interface VarroaMeasurementData {
+  metod: VarroaMethod;
+  antalKvalster: number;
+  antalDygn?: number; // för nedfallsmätning
+  antalBin?: number; // för alkoholtvätt/sockerprov (vanligen ca 300)
+  nedfallPerDygn?: number; // beräknat
+  angreppsgrad?: number; // beräknat, % av provets bin
+  anteckningar?: string;
+}
+
+// Feeding
+export const FEED_TYPES = [
+  "Sockerlösning",
+  "Invertsocker",
+  "Foderdeg",
+  "Egen honung",
+  "Annat",
+] as const;
+export type FeedType = (typeof FEED_TYPES)[number];
+
+export const FEED_PURPOSES = [
+  "Höstfodring",
+  "Stimuleringsfodring",
+  "Nödfodring",
+] as const;
+export type FeedPurpose = (typeof FEED_PURPOSES)[number];
+
+export interface FeedingData {
+  fodertyp: FeedType;
+  mangdKg: number;
+  syfte?: FeedPurpose;
   anteckningar?: string;
 }
 
@@ -81,6 +127,8 @@ export type EventData =
   | WinterizationData
   | SplitData
   | HealthActionData
+  | VarroaMeasurementData
+  | FeedingData
   | NoteData;
 
 // Transaction types
@@ -125,6 +173,22 @@ export const QUEEN_RACES = [
   "Nordbi",
   "Kaukasiska",
 ] as const;
+
+// Queen origins and statuses
+export const QUEEN_ORIGINS = [
+  "Köpt",
+  "Egen avel",
+  "Svärmcell",
+  "Okänd",
+] as const;
+
+export const QUEEN_STATUSES = [
+  "Aktiv",
+  "Ersatt",
+  "Död",
+  "Försvunnen",
+] as const;
+export type QueenStatus = (typeof QUEEN_STATUSES)[number];
 
 // Reminder categories
 export const REMINDER_CATEGORIES = [

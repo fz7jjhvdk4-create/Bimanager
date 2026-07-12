@@ -86,6 +86,33 @@ export const PUT = withAuth(
       },
     });
 
+    // Håll den aktiva drottningen i synk med samhällets fält (rättelser);
+    // riktiga drottningbyten görs via /queens-endpointen
+    const aktivDrottning = await prisma.queen.findFirst({
+      where: { samhalleId: params.id, status: "Aktiv" },
+      orderBy: { installeradDatum: "desc" },
+    });
+    if (aktivDrottning) {
+      await prisma.queen.update({
+        where: { id: aktivDrottning.id },
+        data: {
+          ras: body.drottningRas,
+          ar: body.drottningAr,
+          vingklippt: body.drottningVingklippt,
+        },
+      });
+    } else if (body.drottningRas || body.drottningAr) {
+      await prisma.queen.create({
+        data: {
+          userId,
+          samhalleId: params.id,
+          ras: body.drottningRas,
+          ar: body.drottningAr,
+          vingklippt: body.drottningVingklippt,
+        },
+      });
+    }
+
     return NextResponse.json(colony);
   }
 );

@@ -70,6 +70,19 @@ export const POST = withAuth(
       },
     });
 
+    // Starta drottninghistoriken om drottninguppgifter angavs
+    if (body.drottningRas || body.drottningAr) {
+      await prisma.queen.create({
+        data: {
+          userId,
+          samhalleId: colony.id,
+          ras: body.drottningRas,
+          ar: body.drottningAr,
+          vingklippt: body.drottningVingklippt,
+        },
+      });
+    }
+
     return NextResponse.json(colony, { status: 201 });
   }
 );

@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Bug,
   ClipboardCheck,
+  Droplets,
   Scale,
   Snowflake,
   GitBranch,
@@ -32,6 +34,8 @@ interface EventTimelineProps {
 
 const eventIcons: Record<EventType, React.ElementType> = {
   Inspektion: ClipboardCheck,
+  Varroamätning: Bug,
+  Utfodring: Droplets,
   Skörd: Scale,
   Invintring: Snowflake,
   Avläggare: GitBranch,
@@ -41,6 +45,8 @@ const eventIcons: Record<EventType, React.ElementType> = {
 
 const eventColors: Record<EventType, string> = {
   Inspektion: "bg-blue-500",
+  Varroamätning: "bg-orange-500",
+  Utfodring: "bg-lime-600",
   Skörd: "bg-yellow-500",
   Invintring: "bg-cyan-500",
   Avläggare: "bg-purple-500",
@@ -104,6 +110,83 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
                 {parsedData.drottningceller ? "Ja" : "Nej"}
               </span>
             </div>
+            {parsedData.vader != null &&
+              (() => {
+                const vader = parsedData.vader as unknown as {
+                  temperatur?: number;
+                  vind?: number;
+                  text?: string;
+                };
+                return (
+                  <div className="col-span-2">
+                    <span className="text-[var(--accent-hover)]">Väder:</span>{" "}
+                    <span className="font-medium">
+                      {vader.text}, {Math.round(vader.temperatur ?? 0)}°C,{" "}
+                      {Math.round(vader.vind ?? 0)} m/s
+                    </span>
+                  </div>
+                );
+              })()}
+          </div>
+        );
+
+      case "Varroamätning":
+        return (
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            {parsedData.metod && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Metod:</span>{" "}
+                <span className="font-medium">{String(parsedData.metod)}</span>
+              </div>
+            )}
+            {parsedData.antalKvalster !== undefined && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Kvalster:</span>{" "}
+                <span className="font-medium">
+                  {String(parsedData.antalKvalster)}
+                </span>
+              </div>
+            )}
+            {parsedData.nedfallPerDygn !== undefined && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Per dygn:</span>{" "}
+                <span className="font-medium">
+                  {String(parsedData.nedfallPerDygn)}
+                </span>
+              </div>
+            )}
+            {parsedData.angreppsgrad !== undefined && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Angreppsgrad:</span>{" "}
+                <span className="font-medium">
+                  {String(parsedData.angreppsgrad)} %
+                </span>
+              </div>
+            )}
+          </div>
+        );
+
+      case "Utfodring":
+        return (
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            {parsedData.fodertyp && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Fodertyp:</span>{" "}
+                <span className="font-medium">{String(parsedData.fodertyp)}</span>
+              </div>
+            )}
+            {parsedData.mangdKg !== undefined && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Mängd:</span>{" "}
+                <span className="font-medium">{String(parsedData.mangdKg)} kg</span>
+              </div>
+            )}
+            {parsedData.syfte && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Syfte:</span>{" "}
+                <span className="font-medium">{String(parsedData.syfte)}</span>
+              </div>
+            )}
           </div>
         );
 
@@ -162,6 +245,18 @@ function EventCard({ event, onDelete }: { event: Event; onDelete: () => void }) 
               <div>
                 <span className="text-[var(--accent-hover)]">Metod/preparat:</span>{" "}
                 <span className="font-medium">{String(parsedData.metodPreparat)}</span>
+              </div>
+            )}
+            {parsedData.batchnummer && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Batchnr:</span>{" "}
+                <span className="font-medium">{String(parsedData.batchnummer)}</span>
+              </div>
+            )}
+            {parsedData.karensDagar !== undefined && parsedData.karensDagar !== 0 && (
+              <div>
+                <span className="text-[var(--accent-hover)]">Karens:</span>{" "}
+                <span className="font-medium">{String(parsedData.karensDagar)} dagar</span>
               </div>
             )}
           </div>

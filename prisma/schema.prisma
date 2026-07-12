@@ -34,6 +34,7 @@ model User {
   invoices    Invoice[]
   settings    Settings[]
   reminders   Reminder[]
+  queens      Queen[]
 }
 
 // OAuth Konto (för externa providers som Google, GitHub)
@@ -118,12 +119,35 @@ model Colony {
 
   events            Event[]
   reminders         Reminder[]
+  queens            Queen[]
   // Avläggare-relationer
   skapadFran        Colony?  @relation("AvlaggareRelation", fields: [skapadFranId], references: [id])
   skapadFranId      String?
   avlaggare         Colony[] @relation("AvlaggareRelation")
 
   @@index([userId])
+}
+
+// Drottning (Queen) — historik per samhälle; samhällets drottningfält
+// speglar alltid den senaste aktiva drottningen
+model Queen {
+  id               String    @id @default(uuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  samhalleId       String
+  samhalle         Colony    @relation(fields: [samhalleId], references: [id], onDelete: Cascade)
+  ras              String?
+  ar               Int?      // födelseår — märkfärgen härleds ur sista siffran
+  vingklippt       Boolean   @default(false)
+  ursprung         String?   // t.ex. Köpt, Egen avel, Svärmcell
+  status           String    @default("Aktiv") // Aktiv, Ersatt, Död, Försvunnen
+  installeradDatum DateTime  @default(now())
+  avslutadDatum    DateTime?
+  anteckningar     String?
+  skapadDatum      DateTime  @default(now())
+
+  @@index([userId])
+  @@index([samhalleId])
 }
 
 // Händelse (Event)

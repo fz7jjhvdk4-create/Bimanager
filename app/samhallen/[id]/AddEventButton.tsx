@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Plus,
+  Bug,
   ClipboardCheck,
+  Droplets,
   Scale,
   Snowflake,
   GitBranch,
@@ -23,7 +25,15 @@ import {
   STRENGTH_LEVELS,
   TEMPERAMENT_LEVELS,
   HEALTH_ACTION_TYPES,
+  VARROA_METHODS,
+  FEED_TYPES,
+  FEED_PURPOSES,
 } from "@/types";
+import {
+  bedomVarroa,
+  beraknaAngreppsgrad,
+  beraknaNedfallPerDygn,
+} from "@/lib/varroa";
 
 interface Apiary {
   id: string;
@@ -43,6 +53,16 @@ const eventTypeConfig: Record<
     icon: ClipboardCheck,
     color: "bg-blue-500",
     description: "Detaljerad kontroll av samhället",
+  },
+  Varroamätning: {
+    icon: Bug,
+    color: "bg-orange-500",
+    description: "Nedfall, alkoholtvätt eller sockerprov",
+  },
+  Utfodring: {
+    icon: Droplets,
+    color: "bg-lime-600",
+    description: "Höst-, stimulerings- eller nödfodring",
   },
   Skörd: {
     icon: Scale,
@@ -103,6 +123,23 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
     setError(null);
 
     try {
+      const data = { ...formData };
+      // Beräkna härledda varroavärden så att de sparas med mätningen
+      if (selectedType === "Varroamätning") {
+        const antalKvalster = Number(data.antalKvalster) || 0;
+        if (data.metod === "Nedfall") {
+          data.nedfallPerDygn = beraknaNedfallPerDygn(
+            antalKvalster,
+            Number(data.antalDygn) || 0
+          );
+        } else {
+          data.angreppsgrad = beraknaAngreppsgrad(
+            antalKvalster,
+            Number(data.antalBin) || 0
+          );
+        }
+      }
+
       const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,7 +147,7 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
           samhalleId: colonyId,
           handelseTyp: selectedType,
           datum,
-          data: formData,
+          data,
         }),
       });
 
@@ -196,6 +233,159 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
                 }))
               }
               placeholder="Övriga observationer (ägg, yngel, foder, etc.)..."
+            />
+          </div>
+        );
+
+      case "Varroamätning": {
+        const metod = (formData.metod as string) || "";
+        const nedfall = metod === "Nedfall";
+        const antalKvalster = Number(formData.antalKvalster) || 0;
+        const varde = nedfall
+          ? beraknaNedfallPerDygn(antalKvalster, Number(formData.antalDygn) || 0)
+          : beraknaAngreppsgrad(antalKvalster, Number(formData.antalBin) || 0);
+        const bedomning =
+          metod && antalKvalster >= 0 && (nedfall
+            ? Number(formData.antalDygn) > 0
+            : Number(formData.antalBin) > 0)
+            ? bedomVarroa({
+                metod,
+                angreppsgrad: nedfall ? undefined : varde,
+                nedfallPerDygn: nedfall ? varde : undefined,
+                datum: new Date(datum),
+              })
+            : null;
+        const bedomningsFarger = {
+          ok: "bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+          varning: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+          atgard: "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-300",
+        } as const;
+
+        return (
+          <div className="space-y-4">
+            <Select
+              label="Mätmetod"
+              value={metod}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, metod: e.target.value }))
+              }
+              options={VARROA_METHODS.map((m) => ({ value: m, label: m }))}
+              placeholder="Välj metod..."
+            />
+
+            {metod && (
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Antal kvalster"
+                  type="number"
+                  value={(formData.antalKvalster as string) || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      antalKvalster: parseInt(e.target.value) || 0,
+                    }))
+                  }
+                  placeholder="T.ex. 12"
+                />
+                {nedfall ? (
+                  <Input
+                    label="Antal dygn"
+                    type="number"
+                    value={(formData.antalDygn as string) || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        antalDygn: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                    placeholder="T.ex. 7"
+                  />
+                ) : (
+                  <Input
+                    label="Antal bin i provet"
+                    type="number"
+                    value={(formData.antalBin as string) || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        antalBin: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                    placeholder="Vanligen ca 300"
+                  />
+                )}
+              </div>
+            )}
+
+            {bedomning && (
+              <div
+                className={`p-3 rounded-lg text-sm font-medium ${bedomningsFarger[bedomning.niva]}`}
+              >
+                {bedomning.text}
+              </div>
+            )}
+
+            <Textarea
+              label="Anteckningar"
+              value={(formData.anteckningar as string) || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  anteckningar: e.target.value,
+                }))
+              }
+              placeholder="Övriga kommentarer..."
+            />
+          </div>
+        );
+      }
+
+      case "Utfodring":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Select
+                label="Fodertyp"
+                value={(formData.fodertyp as string) || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, fodertyp: e.target.value }))
+                }
+                options={FEED_TYPES.map((t) => ({ value: t, label: t }))}
+                placeholder="Välj..."
+              />
+              <Input
+                label="Mängd (kg)"
+                type="number"
+                step="0.1"
+                value={(formData.mangdKg as string) || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    mangdKg: parseFloat(e.target.value) || 0,
+                  }))
+                }
+                placeholder="T.ex. 15"
+              />
+            </div>
+            <Select
+              label="Syfte"
+              value={(formData.syfte as string) || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, syfte: e.target.value }))
+              }
+              options={FEED_PURPOSES.map((s) => ({ value: s, label: s }))}
+              placeholder="Välj..."
+            />
+            <Textarea
+              label="Anteckningar"
+              value={(formData.anteckningar as string) || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  anteckningar: e.target.value,
+                }))
+              }
+              placeholder="T.ex. koncentration, hur det togs emot..."
             />
           </div>
         );
@@ -430,6 +620,34 @@ export default function AddEventButton({ colonyId, apiaries = [] }: AddEventButt
               }
               placeholder="T.ex. Oxalsyra, ApiVar"
             />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Batchnummer"
+                value={(formData.batchnummer as string) || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    batchnummer: e.target.value,
+                  }))
+                }
+                placeholder="Från förpackningen"
+              />
+              <Input
+                label="Karenstid (dagar)"
+                type="number"
+                value={(formData.karensDagar as string) || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    karensDagar: parseInt(e.target.value) || 0,
+                  }))
+                }
+                placeholder="T.ex. 0"
+              />
+            </div>
+            <p className="text-xs text-[var(--muted)]">
+              Batchnummer och karenstid används i behandlingsjournalen.
+            </p>
             <Textarea
               label="Anteckningar"
               value={(formData.anteckningar as string) || ""}

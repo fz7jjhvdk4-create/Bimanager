@@ -14,6 +14,8 @@ import prisma from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import DeleteColonyButton from "./DeleteColonyButton";
 import AddEventButton from "./AddEventButton";
+import VarroaStatusCard from "./VarroaStatusCard";
+import QueenCard from "./QueenCard";
 
 export const dynamic = "force-dynamic";
 import EventTimeline from "./EventTimeline";
@@ -29,6 +31,9 @@ async function getColony(id: string, userId: string) {
       bigard: true,
       events: {
         orderBy: { datum: "desc" },
+      },
+      queens: {
+        orderBy: { installeradDatum: "desc" },
       },
       skapadFran: {
         select: { id: true, namn: true, bigard: { select: { namn: true } } },
@@ -116,33 +121,23 @@ export default async function SamhällePage({ params }: PageProps) {
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Queen Info */}
-        <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
-          <div className="flex items-center gap-2 mb-4">
-            <Crown className="h-5 w-5 text-[var(--accent-hover)]" />
-            <h2 className="text-lg font-semibold text-[var(--foreground)]">Drottning</h2>
-          </div>
-          <dl className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-[var(--accent-hover)]">Ras</dt>
-              <dd className="font-medium text-[var(--foreground)]">
-                {colony.drottningRas || "-"}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--accent-hover)]">Märkningsår</dt>
-              <dd className="font-medium text-[var(--foreground)]">
-                {colony.drottningAr || "-"}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-[var(--accent-hover)]">Vingklippt</dt>
-              <dd className="font-medium text-[var(--foreground)]">
-                {colony.drottningVingklippt ? "Ja" : "Nej"}
-              </dd>
-            </div>
-          </dl>
-        </div>
+        {/* Queen Info med historik och byt drottning-flöde */}
+        <QueenCard
+          colonyId={colony.id}
+          drottningRas={colony.drottningRas}
+          drottningAr={colony.drottningAr}
+          drottningVingklippt={colony.drottningVingklippt}
+          queens={colony.queens.map((q) => ({
+            id: q.id,
+            ras: q.ras,
+            ar: q.ar,
+            vingklippt: q.vingklippt,
+            ursprung: q.ursprung,
+            status: q.status,
+            installeradDatum: q.installeradDatum.toISOString(),
+            avslutadDatum: q.avslutadDatum?.toISOString() ?? null,
+          }))}
+        />
 
         {/* Hive Info */}
         <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">
@@ -200,6 +195,9 @@ export default async function SamhällePage({ params }: PageProps) {
           </dl>
         </div>
       </div>
+
+      {/* Varroastatus (visas när mätningar finns) */}
+      <VarroaStatusCard events={colony.events} />
 
       {/* Related colonies */}
       {(colony.skapadFran || colony.avlaggare.length > 0) && (

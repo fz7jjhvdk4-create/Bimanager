@@ -12,9 +12,11 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import DeleteApiaryButton from "./DeleteApiaryButton";
+import DownloadTreatmentJournal from "./DownloadTreatmentJournal";
 
 export const dynamic = "force-dynamic";
 import ApiaryMapView from "./ApiaryMapView";
+import WeatherCard from "@/components/weather/WeatherCard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -71,6 +73,10 @@ export default async function BigårdPage({ params }: PageProps) {
               Starta besök
             </Link>
           )}
+          <DownloadTreatmentJournal
+            bigardId={apiary.id}
+            bigardNamn={apiary.namn}
+          />
           <Link
             href={`/bigardar/${apiary.id}/redigera`}
             className="inline-flex items-center gap-2 rounded-lg bg-[var(--card-bg)] px-4 py-2 text-[var(--muted)] font-medium ring-1 ring-[var(--card-border)] hover:bg-[var(--accent)]/10 transition-colors"
@@ -135,6 +141,11 @@ export default async function BigårdPage({ params }: PageProps) {
           </dl>
         </div>
       </div>
+
+      {/* Väder (visas när bigården har koordinater) */}
+      {apiary.latitude && apiary.longitude && (
+        <WeatherCard latitude={apiary.latitude} longitude={apiary.longitude} />
+      )}
 
       {/* Colonies Section */}
       <div className="rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)]">

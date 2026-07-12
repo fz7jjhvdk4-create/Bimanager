@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { withAuth } from "@/lib/auth";
 import { eventSchema } from "@/lib/schemas";
+import { hamtaPrognos, symbolText } from "@/lib/smhi";
 
 // Typspecifik payload när en avläggare ska skapa ett nytt samhälle
 interface AvlaggareData {
@@ -53,7 +54,7 @@ export const POST = withAuth(
   "Kunde inte skapa händelse",
   async (request, { userId }) => {
     const body = eventSchema.parse(await request.json());
-    const data = (body.data ?? null) as (AvlaggareData & Record<string, unknown>) | null;
+    let data = (body.data ?? null) as (AvlaggareData & Record<string, unknown>) | null;
 
     // Verify colony exists and belongs to user
     const colony = await prisma.colony.findFirst({
@@ -66,6 +67,27 @@ export const POST = withAuth(
         { error: "Samhället finns inte" },
         { status: 404 }
       );
+    }
+
+    // Väderstämpla inspektioner som loggas samma dag, om bigården har koordinater
+    if (
+      body.handelseTyp === "Inspektion" &&
+      colony.bigard.latitude &&
+      colony.bigard.longitude &&
+      body.datum.toDateString() === new Date().toDateString()
+    ) {
+      const prognos = await hamtaPrognos(
+        colony.bigard.latitude,
+        colony.bigard.longitude
+      );
+      if (prognos) {
+        data = data ?? {};
+        data.vader = {
+          temperatur: prognos.nu.temperatur,
+          vind: prognos.nu.vind,
+          text: symbolText(prognos.nu.symbol),
+        };
+      }
     }
 
     // Om det är en avläggare och användaren vill skapa nytt samhälle
@@ -91,6 +113,19 @@ export const POST = withAuth(
       });
 
       newColonyId = newColony.id;
+
+      // Starta drottninghistoriken för det nya samhället
+      if (newColony.drottningRas || newColony.drottningAr) {
+        await prisma.queen.create({
+          data: {
+            userId,
+            samhalleId: newColony.id,
+            ras: newColony.drottningRas,
+            ar: newColony.drottningAr,
+            ursprung: "Egen avel",
+          },
+        });
+      }
 
       // Lägg till avläggare-ID i event data
       data.nyttSamhalleId = newColonyId;

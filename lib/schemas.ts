@@ -104,6 +104,20 @@ export const reminderUpdateSchema = z.object({
   ),
 });
 
+/** Byte av drottning: ny drottning + vad som hände med den gamla. */
+export const queenSchema = z.object({
+  ras: textEllerNull,
+  ar: heltalEllerNull,
+  vingklippt: z.boolean().optional().default(false),
+  ursprung: textEllerNull,
+  installeradDatum: z.coerce.date("Ogiltigt datum").optional(),
+  gammalStatus: z
+    .enum(["Ersatt", "Död", "Försvunnen"], "Ogiltig status")
+    .optional()
+    .default("Ersatt"),
+  anteckningar: textEllerNull,
+});
+
 export const accountingSchema = z.object({
   datum: z.coerce.date("Ogiltigt datum"),
   handelseTyp: z.enum(TRANSACTION_TYPES, "Ogiltig transaktionstyp"),
