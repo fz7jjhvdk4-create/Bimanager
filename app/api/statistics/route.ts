@@ -154,19 +154,23 @@ export const GET = withAuth(
 
     transactions.forEach((t) => {
       const month = getMonthKey(t.datum);
+      // Decimal-fälten är JS-tal i praktiken (konverteras i lib/db.ts),
+      // men Prisma-typen är Decimal — därav Number().
+      const beloppInklMoms = Number(t.beloppInklMoms);
+      const momsBelopp = Number(t.momsBelopp);
 
       if (t.handelseTyp === "Försäljning") {
-        totalIncome += t.beloppInklMoms;
-        totalIncomeMoms += t.momsBelopp;
-        incomeByMonth[month] = (incomeByMonth[month] || 0) + t.beloppInklMoms;
+        totalIncome += beloppInklMoms;
+        totalIncomeMoms += momsBelopp;
+        incomeByMonth[month] = (incomeByMonth[month] || 0) + beloppInklMoms;
         if (t.antalBurkar) {
           totalJarsSold += t.antalBurkar;
           jarsSoldByMonth[month] = (jarsSoldByMonth[month] || 0) + t.antalBurkar;
         }
       } else {
-        totalExpenses += t.beloppInklMoms;
-        totalExpensesMoms += t.momsBelopp;
-        expensesByMonth[month] = (expensesByMonth[month] || 0) + t.beloppInklMoms;
+        totalExpenses += beloppInklMoms;
+        totalExpensesMoms += momsBelopp;
+        expensesByMonth[month] = (expensesByMonth[month] || 0) + beloppInklMoms;
       }
     });
 

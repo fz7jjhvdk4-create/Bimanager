@@ -150,13 +150,13 @@ model Accounting {
   datum           DateTime
   handelseTyp     String   // Försäljning, Inköp
   beskrivning     String
-  beloppExMoms    Float
-  momsSats        Float    @default(0.12) // 12% för honung
-  momsBelopp      Float
-  beloppInklMoms  Float
+  beloppExMoms    Decimal  @db.Decimal(12, 2)
+  momsSats        Decimal  @default(0.12) @db.Decimal(5, 4) // 12% för honung
+  momsBelopp      Decimal  @db.Decimal(12, 2)
+  beloppInklMoms  Decimal  @db.Decimal(12, 2)
   mottagare       String?
   antalBurkar     Int?
-  prisPerEnhet    Float?
+  prisPerEnhet    Decimal? @db.Decimal(12, 2)
   fakturaNummer   String?
   kvittoNummer    String?  // För kontanta betalningar med kvitto
   notering        String?
@@ -199,9 +199,9 @@ model Invoice {
   fakturaDatum    DateTime
   forfallDatum    DateTime
   rader           String   // JSON array med produktrader
-  totaltExMoms    Float
-  totaltMoms      Float
-  totaltInklMoms  Float
+  totaltExMoms    Decimal  @db.Decimal(12, 2)
+  totaltMoms      Decimal  @db.Decimal(12, 2)
+  totaltInklMoms  Decimal  @db.Decimal(12, 2)
   typ             String   @default("faktura") // faktura, kvitto
   status          String   @default("Utkast") // Utkast, Skickad, Betald
   pdfUrl          String?

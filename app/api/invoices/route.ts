@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@/app/generated/prisma/client";
 import prisma from "@/lib/db";
 import { getCurrentUserId, unauthorizedResponse } from "@/lib/auth";
 import {
@@ -11,13 +12,15 @@ import {
   type InvoiceLine,
 } from "@/lib/invoice";
 
+// Totalerna kan vara Prisma.Decimal direkt från databasen eller number
+// (konverteras i lib/db.ts) — toFixed finns på båda.
 interface InvoiceWithCustomer {
   id: string;
   fakturaNummer: string;
   fakturaDatum: Date;
-  totaltExMoms: number;
-  totaltMoms: number;
-  totaltInklMoms: number;
+  totaltExMoms: number | Prisma.Decimal;
+  totaltMoms: number | Prisma.Decimal;
+  totaltInklMoms: number | Prisma.Decimal;
   kund: {
     namn: string;
     epost: string | null;
