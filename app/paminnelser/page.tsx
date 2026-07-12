@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/auth";
 import Link from "next/link";
 import AddReminderButton from "./AddReminderButton";
 import ReminderCard from "./ReminderCard";
+import ReminderCalendar from "./ReminderCalendar";
 
 export const dynamic = "force-dynamic";
 
@@ -168,6 +169,17 @@ export default async function PaminnelserPage() {
           </div>
         </div>
       </div>
+
+      {/* Kalendervy */}
+      <ReminderCalendar
+        reminders={reminders.map((r) => ({
+          id: r.id,
+          titel: r.titel,
+          datum: r.datum.toISOString(),
+          kategori: r.kategori,
+        }))}
+        categoryColors={categoryColors}
+      />
 
       {/* Overdue reminders */}
       {overdueReminders.length > 0 && (

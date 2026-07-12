@@ -27,7 +27,10 @@ export const authConfig: NextAuthConfig = {
       // Auth API routes need to be public
       const isAuthApi = pathname.startsWith("/api/auth");
 
-      if (!isLoggedIn && !isPublicRoute && !isAuthApi) {
+      // Cron-routes skyddas med CRON_SECRET i själva handlern, inte session
+      const isCronApi = pathname.startsWith("/api/cron");
+
+      if (!isLoggedIn && !isPublicRoute && !isAuthApi && !isCronApi) {
         return false; // Redirect to login
       }
 

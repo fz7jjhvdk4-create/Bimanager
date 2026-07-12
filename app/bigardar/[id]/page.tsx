@@ -1,4 +1,12 @@
-import { ArrowLeft, Edit, Trash2, Hexagon, Plus, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  ClipboardCheck,
+  Edit,
+  Trash2,
+  Hexagon,
+  Plus,
+  MapPin,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
@@ -53,7 +61,16 @@ export default async function BigårdPage({ params }: PageProps) {
             )}
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {activeColonies.length > 0 && (
+            <Link
+              href={`/bigardar/${apiary.id}/besok`}
+              className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-white font-medium hover:bg-amber-600 transition-colors"
+            >
+              <ClipboardCheck className="h-4 w-4" />
+              Starta besök
+            </Link>
+          )}
           <Link
             href={`/bigardar/${apiary.id}/redigera`}
             className="inline-flex items-center gap-2 rounded-lg bg-[var(--card-bg)] px-4 py-2 text-[var(--muted)] font-medium ring-1 ring-[var(--card-border)] hover:bg-[var(--accent)]/10 transition-colors"

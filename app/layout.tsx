@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
@@ -16,8 +16,21 @@ export const metadata: Metadata = {
   description: "Professionell hantering av biodling, bigårdar och bisamhällen",
   icons: {
     icon: "/bee-icon.svg",
-    apple: "/bee-icon.svg",
   },
+  appleWebApp: {
+    capable: true,
+    title: "BiManager",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f59e0b" },
+    { media: "(prefers-color-scheme: dark)", color: "#292524" },
+  ],
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

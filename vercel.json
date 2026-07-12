@@ -4,5 +4,11 @@
   "installCommand": "npm install",
   "env": {
     "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING": "1"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/reminders",
+      "schedule": "0 5 * * *"
+    }
+  ]
 }
