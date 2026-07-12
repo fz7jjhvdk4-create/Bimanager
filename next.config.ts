@@ -4,8 +4,14 @@ const nextConfig: NextConfig = {
   // Undvik att bundla paket med native-beroenden på serversidan
   serverExternalPackages: ["@react-pdf/renderer", "pg"],
   async redirects() {
-    // Gamla fakturaflödet ersatt av /betalning/faktura
+    // Gamla fakturaflödet ersatt av /betalning/faktura,
+    // statistiksidan sammanslagen med översikten
     return [
+      {
+        source: "/statistik",
+        destination: "/",
+        permanent: true,
+      },
       {
         source: "/fakturering",
         destination: "/betalning/faktura",

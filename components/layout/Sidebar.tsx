@@ -12,7 +12,6 @@ import {
   Settings,
   Menu,
   X,
-  BarChart3,
   Bell,
   History,
   Moon,
@@ -22,11 +21,10 @@ import { useState } from "react";
 import { useTheme } from "@/lib/ThemeContext";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
+  { name: "Översikt", href: "/", icon: Home },
   { name: "Bigårdar", href: "/bigardar", icon: MapPin },
   { name: "Samhällen", href: "/samhallen", icon: Hexagon },
   { name: "Händelser", href: "/handelser", icon: History },
-  { name: "Statistik", href: "/statistik", icon: BarChart3 },
   { name: "Påminnelser", href: "/paminnelser", icon: Bell },
   { name: "Kassabok", href: "/kassabok", icon: BookOpen },
   { name: "Betalning", href: "/betalning", icon: CreditCard },
