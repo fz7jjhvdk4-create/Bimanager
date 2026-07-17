@@ -118,7 +118,7 @@ export default function Sidebar() {
               )}
             </button>
             <p className="text-xs text-[var(--muted)] text-center mt-3">
-              BiManager v1.0
+              BiManager v2.0
             </p>
             <p className="text-[10px] text-[var(--muted)]/60 text-center mt-1">
               © Claes Hansen

@@ -127,7 +127,7 @@ export default async function SamhällenPage({ searchParams }: PageProps) {
               className="rounded-xl bg-[var(--card-bg)] shadow-sm ring-1 ring-[var(--card-border)] overflow-hidden"
             >
               {/* Apiary Header */}
-              <div className="bg-gradient-to-r from-amber-50 to-amber-100 px-6 py-3 border-b border-[var(--card-border)]">
+              <div className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--accent)]/20 px-6 py-3 border-b border-[var(--card-border)]">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-[var(--accent-hover)]" />
                   <Link

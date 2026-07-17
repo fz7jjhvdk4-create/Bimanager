@@ -51,7 +51,7 @@ export default async function BigårdarPage() {
           <h3 className="text-lg font-medium text-[var(--foreground)] mb-2">
             Inga bigårdar ännu
           </h3>
-          <p className="text-[var(--accent-hover)] mb-4">
+          <p className="text-[var(--muted)] mb-4">
             Börja med att lägga till din första bigård.
           </p>
           <Link
@@ -70,8 +70,8 @@ export default async function BigårdarPage() {
               href={`/bigardar/${apiary.id}`}
               className="group relative overflow-hidden rounded-xl bg-[var(--card-bg)] p-6 shadow-sm ring-1 ring-[var(--card-border)] hover:shadow-md hover:ring-[var(--card-border)] transition-all"
             >
-              {/* Map preview placeholder */}
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-amber-100 opacity-50" />
+              {/* Dekorativ tonad yta — accentbaserad så den fungerar i båda lägena */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/5 to-[var(--accent)]/15" />
 
               <div className="relative">
                 <div className="flex items-start justify-between mb-3">
@@ -84,7 +84,7 @@ export default async function BigårdarPage() {
                         {apiary.namn}
                       </h3>
                       {apiary.adress && (
-                        <p className="text-sm text-[var(--accent-hover)] truncate max-w-[200px]">
+                        <p className="text-sm text-[var(--muted)] truncate max-w-[200px]">
                           {apiary.adress}
                         </p>
                       )}
@@ -103,7 +103,7 @@ export default async function BigårdarPage() {
                 </div>
 
                 {apiary.beskrivning && (
-                  <p className="mt-3 text-sm text-[var(--accent-hover)] line-clamp-2">
+                  <p className="mt-3 text-sm text-[var(--muted)] line-clamp-2">
                     {apiary.beskrivning}
                   </p>
                 )}
